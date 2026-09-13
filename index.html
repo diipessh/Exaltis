@@ -1,6 +1,25 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+  <script>
+    // Auto day/night default — runs before CSS paints, so no flash of the wrong theme.
+    // Priority: 1) visitor's own saved manual choice, 2) their local device time.
+    (function () {
+      try {
+        var saved = localStorage.getItem('raxa_theme_pref');
+        if (saved === 'dark' || saved === 'light') {
+          document.documentElement.setAttribute('data-theme', saved);
+          return;
+        }
+      } catch (e) { /* localStorage blocked (private mode) — fall through */ }
+
+      // The device clock already reflects the visitor's local timezone, which is
+      // itself geography-derived — no Geolocation permission prompt needed.
+      var hour = new Date().getHours();
+      var isDaytime = hour >= 6 && hour < 18; // 6:00–17:59 local = day
+      document.documentElement.setAttribute('data-theme', isDaytime ? 'light' : 'dark');
+    })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RAXA | Engineered for Deeper Digital Defense | Raxa.ca</title>
@@ -1665,16 +1684,82 @@
   <script>
     /* ==========================================================================
        1. HERO 3D GYROSCOPE DEFENSE CORE (ROTATING SPHERICAL WIREFRAME GLOBE)
+       Hardened: if the Three.js CDN fails to load (network hiccup, ad-blocker,
+       CDN outage), this block no longer throws an uncaught error that halts
+       every script after it (theme toggle, forms, AI panels, etc.). Failure
+       here degrades gracefully to "no hero globe" instead of "broken page".
        ========================================================================== */
-    var heroCanvas = document.getElementById('webgl-canvas');
-    var heroScene = new THREE.Scene();
-    var heroCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    heroCamera.position.z = 5.2;
+    var heroCanvas, heroScene, heroCamera, heroRenderer, shieldGroup,
+        shieldMesh, outerWireMesh, particlePoints, shieldMat, outerMat, pMat;
+    var mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
+    var hero3DReady = false;
 
-    var heroRenderer = new THREE.WebGLRenderer({ canvas: heroCanvas, alpha: true, antialias: true });
-    heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    try {
+      heroCanvas = document.getElementById('webgl-canvas');
+      heroScene = new THREE.Scene();
+      heroCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+      heroCamera.position.z = 5.2;
+
+      heroRenderer = new THREE.WebGLRenderer({ canvas: heroCanvas, alpha: true, antialias: true });
+      heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      shieldGroup = new THREE.Group();
+      heroScene.add(shieldGroup);
+
+      // Inner wireframe sphere
+      var shieldGeo = new THREE.IcosahedronGeometry(1.6, 1);
+      shieldMat = new THREE.MeshBasicMaterial({
+        color: 0x2563eb,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.35
+      });
+      shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+      shieldGroup.add(shieldMesh);
+
+      // Outer wireframe sphere
+      var outerGeo = new THREE.IcosahedronGeometry(2.1, 2);
+      outerMat = new THREE.MeshBasicMaterial({
+        color: 0x1d4ed8,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.15
+      });
+      outerWireMesh = new THREE.Mesh(outerGeo, outerMat);
+      shieldGroup.add(outerWireMesh);
+
+      // Core orbital points
+      var pCount = 220;
+      var pGeo = new THREE.BufferGeometry();
+      var pPos = new Float32Array(pCount * 3);
+
+      for (var i = 0; i < pCount * 3; i += 3) {
+        var rad = 2.4 + Math.random() * 0.4;
+        var theta = Math.random() * Math.PI * 2;
+        var phi = Math.acos((Math.random() * 2) - 1);
+        pPos[i] = rad * Math.sin(phi) * Math.cos(theta);
+        pPos[i + 1] = rad * Math.sin(phi) * Math.sin(theta);
+        pPos[i + 2] = rad * Math.cos(phi);
+      }
+      pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+
+      pMat = new THREE.PointsMaterial({
+        color: 0x38bdf8,
+        size: 0.05,
+        transparent: true,
+        opacity: 0.85
+      });
+      particlePoints = new THREE.Points(pGeo, pMat);
+      shieldGroup.add(particlePoints);
+
+      hero3DReady = true;
+    } catch (e) {
+      console.warn('RAXA: hero 3D globe unavailable (Three.js failed to load) — continuing without it.', e);
+      hero3DReady = false;
+    }
 
     function resizeAllCanvases() {
+      if (!hero3DReady) return;
       if (heroCanvas && heroCanvas.parentElement) {
         var box = heroCanvas.parentElement.getBoundingClientRect();
         heroRenderer.setSize(box.width, box.height);
@@ -1684,64 +1769,13 @@
     }
     window.addEventListener('resize', resizeAllCanvases);
 
-    var shieldGroup = new THREE.Group();
-    heroScene.add(shieldGroup);
-
-    // Inner wireframe sphere
-    var shieldGeo = new THREE.IcosahedronGeometry(1.6, 1);
-    var shieldMat = new THREE.MeshBasicMaterial({
-      color: 0x2563eb,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.35
-    });
-    var shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
-    shieldGroup.add(shieldMesh);
-
-    // Outer wireframe sphere
-    var outerGeo = new THREE.IcosahedronGeometry(2.1, 2);
-    var outerMat = new THREE.MeshBasicMaterial({
-      color: 0x1d4ed8,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.15
-    });
-    var outerWireMesh = new THREE.Mesh(outerGeo, outerMat);
-    shieldGroup.add(outerWireMesh);
-
-    // Core orbital points
-    var pCount = 220;
-    var pGeo = new THREE.BufferGeometry();
-    var pPos = new Float32Array(pCount * 3);
-
-    for (var i = 0; i < pCount * 3; i += 3) {
-      var rad = 2.4 + Math.random() * 0.4;
-      var theta = Math.random() * Math.PI * 2;
-      var phi = Math.acos((Math.random() * 2) - 1);
-      pPos[i] = rad * Math.sin(phi) * Math.cos(theta);
-      pPos[i + 1] = rad * Math.sin(phi) * Math.sin(theta);
-      pPos[i + 2] = rad * Math.cos(phi);
-    }
-    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-
-    var pMat = new THREE.PointsMaterial({
-      color: 0x38bdf8,
-      size: 0.05,
-      transparent: true,
-      opacity: 0.85
-    });
-    var particlePoints = new THREE.Points(pGeo, pMat);
-    shieldGroup.add(particlePoints);
-
-    var mouseX = 0, mouseY = 0;
-    var targetX = 0, targetY = 0;
-
     window.addEventListener('mousemove', function(e) {
       mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
       mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
     });
 
     function animate3D() {
+      if (!hero3DReady) return;
       requestAnimationFrame(animate3D);
 
       shieldMesh.rotation.y += 0.003;
@@ -2243,15 +2277,19 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
       if (theme === 'dark') {
         if (icon) icon.textContent = '☀️';
         if (label) label.textContent = 'Light';
-        shieldMat.color.setHex(0x2563eb);
-        outerMat.color.setHex(0x1d4ed8);
-        pMat.color.setHex(0x38bdf8);
+        if (hero3DReady) {
+          shieldMat.color.setHex(0x2563eb);
+          outerMat.color.setHex(0x1d4ed8);
+          pMat.color.setHex(0x38bdf8);
+        }
       } else {
         if (icon) icon.textContent = '🌙';
         if (label) label.textContent = 'Dark';
-        shieldMat.color.setHex(0x1d4ed8);
-        outerMat.color.setHex(0x2563eb);
-        pMat.color.setHex(0x0284c7);
+        if (hero3DReady) {
+          shieldMat.color.setHex(0x1d4ed8);
+          outerMat.color.setHex(0x2563eb);
+          pMat.color.setHex(0x0284c7);
+        }
       }
     }
 
@@ -2259,6 +2297,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
       const current = document.documentElement.getAttribute('data-theme') || 'dark';
       const next = (current === 'dark') ? 'light' : 'dark';
       applyTheme(next);
+      try { localStorage.setItem('raxa_theme_pref', next); } catch (e) { /* private mode — non-fatal */ }
     }
 
     function switchServiceTab(category) {
@@ -2378,6 +2417,9 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
     }
 
     window.onload = function() {
+      // Sync the icon/label and the 3D sphere materials to whichever theme the
+      // early inline script already applied to <html data-theme="...">.
+      applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
       updateApiKeyUI();
       resizeAllCanvases();
       animate3D();
