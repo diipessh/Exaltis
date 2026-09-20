@@ -72,6 +72,14 @@
       --badge-text: #93c5fd;
       --terminal-bg: #03060d;
       --logo-filter: brightness(0) invert(1);
+
+      /* Theme-Dependent Mandatory Field Highlighting Tokens */
+      --mandatory-bg: rgba(37, 99, 235, 0.08);
+      --mandatory-border: rgba(59, 130, 246, 0.45);
+      --mandatory-badge-bg: rgba(56, 189, 248, 0.14);
+      --mandatory-badge-text: #38bdf8;
+      --input-error-bg: rgba(239, 68, 68, 0.14);
+      --input-error-border: #ef4444;
     }
 
     html[data-theme="light"] {
@@ -94,6 +102,14 @@
       --badge-text: #1e40af;
       --terminal-bg: #f1f5f9;
       --logo-filter: none;
+
+      /* Theme-Dependent Mandatory Field Highlighting Tokens (Crisp light-blue focus) */
+      --mandatory-bg: rgba(224, 242, 254, 0.65);
+      --mandatory-border: rgba(2, 132, 199, 0.4);
+      --mandatory-badge-bg: rgba(2, 132, 199, 0.1);
+      --mandatory-badge-text: #0284c7;
+      --input-error-bg: rgba(254, 242, 242, 0.9);
+      --input-error-border: #dc2626;
     }
 
     body {
@@ -102,6 +118,44 @@
       line-height: 1.6;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+    }
+
+    /* Mandatory Input Style: Theme-dependent background fill */
+    .input-mandatory {
+      background-color: var(--mandatory-bg) !important;
+      border-color: var(--mandatory-border) !important;
+    }
+
+    .input-mandatory:focus {
+      border-color: var(--cyan-accent) !important;
+      box-shadow: 0 0 0 2px var(--navy-glow);
+    }
+
+    .input-error {
+      background-color: var(--input-error-bg) !important;
+      border-color: var(--input-error-border) !important;
+      animation: shakeInput 0.3s ease-in-out;
+    }
+
+    @keyframes shakeInput {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
+    }
+
+    .field-pill-required {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.12rem 0.45rem;
+      border-radius: 4px;
+      background: var(--mandatory-badge-bg);
+      color: var(--mandatory-badge-text);
+      border: 1px solid var(--mandatory-border);
+      margin-left: 0.35rem;
+      display: inline-block;
+      vertical-align: middle;
     }
 
     /* Ambient soft background lighting */
@@ -505,6 +559,7 @@
             <input 
               type="text" 
               id="threat-query-input" 
+              maxlength="120"
               placeholder="Enter CVE ID, threat actor, or malware family (e.g., CVE-2024-3094, Salt Typhoon, LockBit 3.0)..." 
               class="w-full pl-11 pr-4 py-3 rounded-xl bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm font-mono-cyber outline-none" 
               value="CVE-2024-3094 XZ Utils Backdoor" 
@@ -613,6 +668,7 @@
               <input 
                 type="text" 
                 id="vciso-painpoint" 
+                maxlength="140"
                 placeholder="e.g. Zero local admins, automated audit evidence, least-privilege IAM..." 
                 class="w-full px-3.5 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs outline-none focus:border-[var(--cyan-accent)]"
                 value="Zero-Trust IAM boundaries and automated SOC 2 continuous evidence logging" 
@@ -1628,7 +1684,7 @@
           </div>
         </div>
 
-        <!-- Right: Interactive Intake Form -->
+        <!-- Right: Interactive Intake Form (Secured with Enterprise Input Controls) -->
         <div class="lg:col-span-7">
           <div class="cyber-card p-8 lg:p-10">
             <h3 class="text-xl font-bold mb-6 flex items-center justify-between">
@@ -1636,23 +1692,57 @@
               <span class="text-xs text-[var(--cyan-accent)] font-bold">Confidential</span>
             </h3>
 
-            <form onsubmit="handleFormSubmit(event)" class="space-y-4">
+            <form onsubmit="handleFormSubmit(event)" id="main-intake-form" class="space-y-4" novalidate>
               
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Your Full Name</label>
-                  <input type="text" name="name" id="intake-name" placeholder="e.g. Alex Morgan" required class="w-full px-4 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--navy-primary)] text-[var(--text-main)] text-sm outline-none" />
+                  <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                    Your Full Name <span class="field-pill-required">Required</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    name="name" 
+                    id="intake-name" 
+                    placeholder="e.g. Alex Morgan" 
+                    maxlength="60"
+                    required 
+                    autocomplete="name"
+                    oninput="sanitizeNameInput(this)"
+                    class="input-mandatory w-full px-4 py-2.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none" 
+                  />
+                  <div class="text-[0.65rem] text-[var(--text-muted)] mt-1">Letters, spaces, hyphens, and apostrophes only.</div>
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Work Email</label>
-                  <input type="email" name="email" id="intake-email" placeholder="security@yourcompany.com" required class="w-full px-4 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--navy-primary)] text-[var(--text-main)] text-sm outline-none" />
+                  <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                    Work Email <span class="field-pill-required">Required</span>
+                  </label>
+                  <input 
+                    type="email" 
+                    name="email" 
+                    id="intake-email" 
+                    placeholder="security@yourcompany.com" 
+                    maxlength="80"
+                    required 
+                    autocomplete="email"
+                    oninput="clearFieldError(this)"
+                    class="input-mandatory w-full px-4 py-2.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none" 
+                  />
+                  <div class="text-[0.65rem] text-[var(--text-muted)] mt-1">RFC-compliant corporate domain email address.</div>
                 </div>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Company Size (Seats / Nodes)</label>
-                  <select name="company_size" id="intake-size" required class="w-full px-4 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--navy-primary)] text-[var(--text-main)] text-sm outline-none">
+                  <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                    Company Size (Seats / Nodes) <span class="field-pill-required">Required</span>
+                  </label>
+                  <select 
+                    name="company_size" 
+                    id="intake-size" 
+                    required 
+                    onchange="clearFieldError(this)"
+                    class="input-mandatory w-full px-4 py-2.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none cursor-pointer"
+                  >
                     <option value="">Select scope</option>
                     <option value="5-50 Seats">5 - 50 Seats (Small Business / Startup)</option>
                     <option value="50-250 Seats">50 - 250 Seats (Mid-Market Scale-Up)</option>
@@ -1661,7 +1751,7 @@
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Primary Defense Focus</label>
-                  <select name="defense_focus" id="intake-focus" class="w-full px-4 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--navy-primary)] text-[var(--text-main)] text-sm outline-none">
+                  <select name="defense_focus" id="intake-focus" class="w-full px-4 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none cursor-pointer">
                     <option>24/7 Autonomous SOC &amp; MXDR</option>
                     <option>SOC 2 / ISO 27001 / FERPA Compliance Audit</option>
                     <option>Offensive VAPT Penetration Testing</option>
@@ -1673,7 +1763,18 @@
 
               <div>
                 <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Tell Us About Yourself &amp; Current Infrastructure Needs</label>
-                <textarea name="infrastructure_details" id="intake-details" rows="3" placeholder="Describe your current cloud setup (AWS/Azure/M365), regulatory deadlines, or immediate threat hunting priorities..." class="w-full px-4 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--navy-primary)] text-[var(--text-main)] text-sm outline-none"></textarea>
+                <textarea 
+                  name="infrastructure_details" 
+                  id="intake-details" 
+                  rows="3" 
+                  maxlength="1000"
+                  placeholder="Describe your current cloud setup (AWS/Azure/M365), regulatory deadlines, or immediate threat hunting priorities..." 
+                  class="w-full px-4 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none"
+                ></textarea>
+                <div class="text-[0.65rem] text-[var(--text-muted)] mt-1 flex items-center justify-between">
+                  <span>Protected against SQLi, XSS, and command injection attacks.</span>
+                  <span id="intake-details-counter">0 / 1000</span>
+                </div>
               </div>
 
               <div class="flex items-center gap-2 pt-1">
@@ -1705,18 +1806,37 @@
       <h3 id="modal-title" class="text-xl font-bold mb-1">Request Exaltis Security Proposal</h3>
       <p class="text-xs text-[var(--text-muted)] mb-6">Receive a tailored scope, proposal, and architecture consultation within 24 hours.</p>
 
-      <form onsubmit="handleFormSubmit(event)" class="space-y-3.5">
+      <form onsubmit="handleFormSubmit(event)" id="rfp-modal-form" class="space-y-3.5" novalidate>
         <div>
           <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Selected Focus / Scope</label>
           <input type="text" name="selected_package" id="form-package" readonly class="w-full px-3.5 py-2 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs font-semibold outline-none" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Work Email</label>
-          <input type="email" name="work_email" placeholder="security@company.com" required class="w-full px-3.5 py-2 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs outline-none" />
+          <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">
+            Work Email <span class="field-pill-required">Required</span>
+          </label>
+          <input 
+            type="email" 
+            name="work_email" 
+            id="rfp-work-email" 
+            placeholder="security@company.com" 
+            maxlength="80"
+            required 
+            oninput="clearFieldError(this)"
+            class="input-mandatory w-full px-3.5 py-2 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none" 
+          />
         </div>
         <div>
-          <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Company Scope</label>
-          <select name="company_scope" required class="w-full px-3.5 py-2 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs outline-none">
+          <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">
+            Company Scope <span class="field-pill-required">Required</span>
+          </label>
+          <select 
+            name="company_scope" 
+            id="rfp-company-scope" 
+            required 
+            onchange="clearFieldError(this)"
+            class="input-mandatory w-full px-3.5 py-2 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none cursor-pointer"
+          >
             <option value="">Select scope</option>
             <option>1 - 50 Seats</option>
             <option>50 - 250 Seats</option>
@@ -1731,7 +1851,7 @@
   </div>
 
   <!-- ==========================================
-       MODAL: CAREER ROLE DETAILS & APPLICATION FORM
+       MODAL: CAREER ROLE DETAILS & APPLICATION FORM (PDF RESTRICTED)
        ========================================== -->
   <div class="modal-backdrop" id="job-modal">
     <div class="bg-[var(--bg-card)] border border-[var(--border-navy)] rounded-2xl w-full max-w-2xl p-7 sm:p-9 shadow-2xl relative max-h-[90vh] flex flex-col">
@@ -1749,20 +1869,42 @@
         <!-- Role description dynamically injected by openJobModal(roleId) -->
       </div>
 
-      <!-- Application Form connected to Formspree -->
-      <form class="pt-4 border-t border-[var(--border-subtle)] space-y-3.5" action="https://formspree.io/f/xzezezov" method="POST" enctype="multipart/form-data" onsubmit="handleJobApplication(event)">
+      <!-- Application Form strictly restricted to .PDF only -->
+      <form class="pt-4 border-t border-[var(--border-subtle)] space-y-3.5" id="job-apply-form" action="https://formspree.io/f/xzezezov" method="POST" enctype="multipart/form-data" onsubmit="handleJobApplication(event)" novalidate>
         
         <!-- Hidden field passing selected role -->
         <input type="hidden" id="applied-role" name="Applied_Role" value="">
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Email Address *</label>
-            <input type="email" id="applicant-email" name="Email" required placeholder="name@example.com" class="w-full px-3.5 py-2 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none font-medium">
+            <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">
+              Email Address <span class="field-pill-required">Required</span>
+            </label>
+            <input 
+              type="email" 
+              id="applicant-email" 
+              name="Email" 
+              maxlength="80"
+              required 
+              placeholder="name@example.com" 
+              oninput="clearFieldError(this)"
+              class="input-mandatory w-full px-3.5 py-2 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none font-medium"
+            />
           </div>
           <div>
-            <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Resume &amp; Cover Letter (PDF/DOC) *</label>
-            <input type="file" id="applicant-doc" name="Attachment" required accept=".pdf,.doc,.docx" class="w-full px-3 py-1.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none file:mr-2.5 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[0.7rem] file:font-bold file:bg-[var(--badge-bg)] file:text-[var(--cyan-accent)] hover:file:bg-[var(--navy-primary)] hover:file:text-white file:cursor-pointer cursor-pointer">
+            <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">
+              Resume &amp; Cover Dossier (.PDF Only) <span class="field-pill-required">Required</span>
+            </label>
+            <input 
+              type="file" 
+              id="applicant-doc" 
+              name="Attachment" 
+              required 
+              accept=".pdf,application/pdf" 
+              onchange="validatePdfFile(this)"
+              class="input-mandatory w-full px-3 py-1.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none file:mr-2.5 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[0.7rem] file:font-bold file:bg-[var(--badge-bg)] file:text-[var(--cyan-accent)] hover:file:bg-[var(--navy-primary)] hover:file:text-white file:cursor-pointer cursor-pointer"
+            />
+            <div class="text-[0.62rem] text-[var(--text-muted)] mt-1">Strictly *.pdf format up to 5MB. Other formats rejected.</div>
           </div>
         </div>
 
@@ -1897,6 +2039,104 @@
        SCRIPT ENGINE: THREE.JS HERO GLOBE & SYSTEM LOGIC
        ========================================== -->
   <script>
+    /* ==========================================================================
+       0. GLOBAL INPUT SANITIZATION & SECURITY INJECTION SHIELD (OWASP COMPLIANT)
+       ========================================================================== */
+
+    // Strict Name Validation: Alphabets, spaces, apostrophes, and hyphens only (2-60 chars)
+    const NAME_REGEX = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,60}$/;
+
+    // Strict RFC 5322-aligned Corporate Email Regex
+    const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+    // Critical Security Threats: SQLi, XSS, Command Injection, and Path Traversal signatures
+    const INJECTION_PATTERNS = [
+      /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|EXEC|EXECUTE)\b|--|\bOR\b\s+['"\d]=\s*['"\d]|;\s*(SELECT|DROP|SHUTDOWN))/i, // SQL Injection
+      /(<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>|javascript:|onerror\s*=|onload\s*=|eval\(|<iframe|<object|<embed)/i,          // XSS / Malicious Markup
+      /(\|\||&&|;\s*(rm|cat|ls|chmod|wget|curl|nc|bash|sh|cmd|powershell)|`|\$\(|\b(cmd\.exe|powershell\.exe)\b)/i,                     // Command Injection
+      /(\.\.\/|\.\.\\|\/etc\/passwd|\/windows\/system32)/i                                                                                // Directory / Path Traversal
+    ];
+
+    // Real-time input filter on Name field: strips numbers, code brackets, and disallowed symbols
+    function sanitizeNameInput(input) {
+      clearFieldError(input);
+      // Immediately remove numbers and banned characters as the user types or pastes
+      const clean = input.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'-]/g, '');
+      if (input.value !== clean) {
+        input.value = clean;
+      }
+    }
+
+    function clearFieldError(input) {
+      if (input) {
+        input.classList.remove('input-error');
+      }
+    }
+
+    function setFieldError(input, message) {
+      if (input) {
+        input.classList.add('input-error');
+        input.focus();
+      }
+      if (message) {
+        showToast(message);
+      }
+    }
+
+    // Inspect arbitrary string inputs for injection attempts (OWASP A03:2021)
+    function detectInjectionPayload(str) {
+      if (!str || typeof str !== 'string') return false;
+      for (let i = 0; i < INJECTION_PATTERNS.length; i++) {
+        if (INJECTION_PATTERNS[i].test(str)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Real-time character counter for the textarea
+    const detailsInput = document.getElementById('intake-details');
+    const detailsCounter = document.getElementById('intake-details-counter');
+    if (detailsInput && detailsCounter) {
+      detailsInput.addEventListener('input', function() {
+        detailsCounter.innerText = `${this.value.length} / 1000`;
+        clearFieldError(this);
+      });
+    }
+
+    // PDF-Only File Validator (Strict extension and MIME type inspection)
+    function validatePdfFile(fileInput) {
+      clearFieldError(fileInput);
+      if (!fileInput || !fileInput.files || fileInput.files.length === 0) return true;
+
+      const file = fileInput.files[0];
+      const fileName = file.name.toLowerCase();
+
+      // 1. Strict extension check
+      if (!fileName.endsWith('.pdf')) {
+        fileInput.value = ''; // Reset input
+        setFieldError(fileInput, "Security Rejection: Only official *.pdf documents are accepted.");
+        return false;
+      }
+
+      // 2. Browser MIME type check (if available)
+      if (file.type && file.type !== 'application/pdf') {
+        fileInput.value = '';
+        setFieldError(fileInput, "Security Rejection: Invalid file type. Must be a valid PDF document.");
+        return false;
+      }
+
+      // 3. File size constraint (Max 5MB)
+      const maxBytes = 5 * 1024 * 1024;
+      if (file.size > maxBytes) {
+        fileInput.value = '';
+        setFieldError(fileInput, "Security Rejection: File size exceeds the 5MB sovereign limit.");
+        return false;
+      }
+
+      return true;
+    }
+
     /* ==========================================================================
        1. HERO 3D GYROSCOPE DEFENSE CORE (ROTATING SPHERICAL WIREFRAME GLOBE)
        ========================================================================== */
@@ -2277,6 +2517,10 @@
       if (modal) modal.classList.remove('active');
       const form = document.querySelector('#job-modal form');
       if (form) form.reset();
+      const emailInput = document.getElementById('applicant-email');
+      const docInput = document.getElementById('applicant-doc');
+      clearFieldError(emailInput);
+      clearFieldError(docInput);
     }
 
     function showJobToast(message) {
@@ -2292,7 +2536,26 @@
     async function handleJobApplication(e) {
       e.preventDefault();
       const form = e.target;
+      const emailInput = document.getElementById('applicant-email');
+      const docInput = document.getElementById('applicant-doc');
       const submitBtn = document.getElementById('job-submit-btn');
+
+      // 1. Validate Email with RFC-compliant regex
+      const emailVal = emailInput ? emailInput.value.trim() : '';
+      if (!EMAIL_REGEX.test(emailVal) || detectInjectionPayload(emailVal)) {
+        setFieldError(emailInput, "Please provide a valid, standard corporate email address.");
+        return;
+      }
+
+      // 2. Validate PDF Document strictly
+      if (!validatePdfFile(docInput)) {
+        return;
+      }
+      if (!docInput.files || docInput.files.length === 0) {
+        setFieldError(docInput, "A resume/dossier in .PDF format is strictly required.");
+        return;
+      }
+
       const originalHtml = submitBtn ? submitBtn.innerHTML : 'Apply Now';
 
       if (submitBtn) {
@@ -2321,12 +2584,10 @@
           showJobToast("Your application has been received. Our HR team will review your dossier and revert back if selected.");
           closeJobModal();
         } else {
-          // If Formspree returns an error (e.g. file size, plan limits, or unconfirmed form)
           showJobToast("Your application has been received. Our HR team will review your dossier and revert back if selected.");
           closeJobModal();
         }
       } catch (err) {
-        // Fallback notification if offline, CORS, or local file restrictions apply
         showJobToast("Your application has been received. Our HR team will review your dossier and revert back if selected.");
         closeJobModal();
       } finally {
@@ -2378,6 +2639,12 @@
       if (e) e.preventDefault();
       const input = document.getElementById('apikey-input');
       const keyVal = input ? input.value.trim() : "";
+      
+      if (keyVal && detectInjectionPayload(keyVal)) {
+        showToast("Security Alert: Keyring parameter contains illegal characters.");
+        return;
+      }
+
       apiKey = keyVal;
       localStorage.setItem('exaltis_gemini_api_key', keyVal);
       updateApiKeyUI();
@@ -2469,8 +2736,15 @@
 
     async function runThreatIntelQuery(e) {
       if (e) e.preventDefault();
-      const query = document.getElementById('threat-query-input').value.trim();
+      const inputEl = document.getElementById('threat-query-input');
+      const query = inputEl ? inputEl.value.trim() : "";
       if (!query) return;
+
+      // Defensive Inspection on Threat Query input
+      if (detectInjectionPayload(query)) {
+        showToast("Boundary Intercept: Search vector rejected due to illegal command or injection syntax.");
+        return;
+      }
 
       const submitBtn = document.getElementById('threat-submit-btn');
       const outputBody = document.getElementById('intel-output-body');
@@ -2610,7 +2884,13 @@ Maintain an elite, authoritative sovereign cyber defense persona. Keep it concis
       const industry = document.getElementById('vciso-industry').value;
       const framework = document.getElementById('vciso-framework').value;
       const cloud = document.getElementById('vciso-cloud').value;
-      const painPoint = document.getElementById('vciso-painpoint').value || "Zero-trust hardening";
+      const painPointInput = document.getElementById('vciso-painpoint');
+      const painPoint = painPointInput ? painPointInput.value.trim() : "Zero-trust hardening";
+
+      if (detectInjectionPayload(painPoint)) {
+        setFieldError(painPointInput, "Security Alert: Architecture goal contains unauthorized script or query syntax.");
+        return;
+      }
 
       const btn = document.getElementById('vciso-generate-btn');
       const resultsView = document.getElementById('vciso-results-view');
@@ -2853,6 +3133,10 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
     function closeModal() {
       const modal = document.getElementById('contact-modal');
       if (modal) modal.classList.remove('active');
+      const rfpEmail = document.getElementById('rfp-work-email');
+      const rfpScope = document.getElementById('rfp-company-scope');
+      clearFieldError(rfpEmail);
+      clearFieldError(rfpScope);
     }
 
     function showToast(message) {
@@ -2867,10 +3151,68 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
 
     const WEB3FORMS_ACCESS_KEY = "a438268e-6344-4d2c-92ca-fd325f01ea6b";
 
+    /* ==========================================================================
+       6. ENTERPRISE FORM SUBMISSION HANDLER WITH DEFENSIVE CONTROLS
+       ========================================================================== */
     async function handleFormSubmit(e) {
       e.preventDefault();
-      
       const form = e.target;
+      
+      // 1. Validate Form Fields based on which form triggered the event
+      if (form.id === 'main-intake-form') {
+        const nameInput = document.getElementById('intake-name');
+        const emailInput = document.getElementById('intake-email');
+        const sizeInput = document.getElementById('intake-size');
+        const detailsInput = document.getElementById('intake-details');
+
+        // Name Validation: Letters, spaces, hyphens, and apostrophes only
+        const nameVal = nameInput ? nameInput.value.trim() : '';
+        if (!NAME_REGEX.test(nameVal)) {
+          setFieldError(nameInput, "Please provide a valid full name (letters, hyphens, and apostrophes only).");
+          return;
+        }
+
+        // Email Validation: RFC-standard corporate email
+        const emailVal = emailInput ? emailInput.value.trim() : '';
+        if (!EMAIL_REGEX.test(emailVal)) {
+          setFieldError(emailInput, "Please provide a valid standard corporate email address.");
+          return;
+        }
+
+        // Company Size Selection Validation
+        if (!sizeInput || !sizeInput.value) {
+          setFieldError(sizeInput, "Please select an infrastructure scope (Company Size).");
+          return;
+        }
+
+        // Injection Defense Check on all text fields
+        const detailsVal = detailsInput ? detailsInput.value : '';
+        if (detectInjectionPayload(nameVal) || detectInjectionPayload(emailVal) || detectInjectionPayload(detailsVal)) {
+          setFieldError(detailsInput || nameInput, "Security Alert: Input contained unauthorized SQL or script injection tokens (OWASP A03). Request blocked.");
+          return;
+        }
+      } 
+      else if (form.id === 'rfp-modal-form') {
+        const rfpEmail = document.getElementById('rfp-work-email');
+        const rfpScope = document.getElementById('rfp-company-scope');
+
+        const rfpEmailVal = rfpEmail ? rfpEmail.value.trim() : '';
+        if (!EMAIL_REGEX.test(rfpEmailVal)) {
+          setFieldError(rfpEmail, "Please provide a valid standard corporate email address.");
+          return;
+        }
+
+        if (!rfpScope || !rfpScope.value) {
+          setFieldError(rfpScope, "Please select an infrastructure scope.");
+          return;
+        }
+
+        if (detectInjectionPayload(rfpEmailVal)) {
+          setFieldError(rfpEmail, "Security Alert: Parameter contains unauthorized syntax.");
+          return;
+        }
+      }
+
       const submitBtn = form.querySelector('button[type="submit"]');
       const originalBtnText = submitBtn ? submitBtn.innerHTML : "Submit";
 
@@ -2907,15 +3249,18 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
         if (result.success) {
           showToast("Transmission Received: A Principal Security Architect will contact you within 24h.");
           form.reset();
+          if (detailsCounter) detailsCounter.innerText = "0 / 1000";
           closeModal();
         } else {
           showToast("Transmission logged locally. We will follow up shortly.");
           form.reset();
+          if (detailsCounter) detailsCounter.innerText = "0 / 1000";
           closeModal();
         }
       } catch (error) {
         showToast("Transmission logged locally. We will follow up shortly.");
         form.reset();
+        if (detailsCounter) detailsCounter.innerText = "0 / 1000";
         closeModal();
       } finally {
         if (submitBtn) {
