@@ -1200,16 +1200,46 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
       return;
     }
 
-    const urlVal = applicantResumeUrl.trim();
-    const urlPattern = /^https:\/\/[^\s/$.?#].[^\s]*$/i;
-    if (!urlPattern.test(urlVal) || detectInjectionPayload(urlVal)) {
-      setJobErrors((prev) => ({ ...prev, resumeUrl: true }));
-      if (applicantResumeUrlRef.current) applicantResumeUrlRef.current.focus();
-      showToast(
-        "Please provide a valid HTTPS URL (LinkedIn, Google Drive, or Portfolio)."
-      );
-      return;
-    }
+const urlVal = applicantResumeUrl.trim();
+ let parsedUrl;
+ try {
+   parsedUrl = new URL(urlVal);
+ } catch {
+   parsedUrl = null;
+ }
+
+ const ALLOWED_RESUME_HOSTS = [
+   "linkedin.com",
+   "www.linkedin.com",
+   "drive.google.com",
+   "docs.google.com",
+   "dropbox.com",
+   "www.dropbox.com",
+   "1drv.ms",
+   "onedrive.live.com",
+   "github.com",
+   "www.github.com",
+ ];
+
+ const BLOCKED_EXTENSIONS = /\.(exe|msi|bat|cmd|ps1|vbs|js|jar|scr|sh|bin|dmg|pkg|iso|img|zip|rar|7z|tar|gz|dll|apk|hta|lnk)(\?|$)/i;
+
+ const isAllowedHost =
+   parsedUrl &&
+   parsedUrl.protocol === "https:" &&
+   ALLOWED_RESUME_HOSTS.includes(parsedUrl.hostname.toLowerCase());
+
+ if (
+   !isAllowedHost ||
+   BLOCKED_EXTENSIONS.test(parsedUrl.pathname) ||
+   detectInjectionPayload(urlVal)
+ ) {
+   setJobErrors((prev) => ({ ...prev, resumeUrl: true }));
+   if (applicantResumeUrlRef.current) applicantResumeUrlRef.current.focus();
+   showToast(
+     "Security Policy: Only HTTPS links from LinkedIn, Google Drive, OneDrive, Dropbox, or GitHub are permitted (no archives or executables)."
+   );
+   return;
+ }
 
     const summaryVal = applicantSummary.trim();
     if (detectInjectionPayload(summaryVal)) {
@@ -4576,7 +4606,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
                 type="url"
                 maxLength={200}
                 required
-                placeholder="https://linkedin.com/in/yourprofile or Google Drive / Portfolio PDF link"
+                placeholder="https://linkedin.com/in/yourprofile or https://drive.google.com/..."
                 value={applicantResumeUrl}
                 onChange={(e) => {
                   setJobErrors((prev) => ({ ...prev, resumeUrl: false }));
