@@ -468,12 +468,12 @@ export default function App() {
   const applicantEmailRef = useRef(null);
   const applicantResumeUrlRef = useRef(null);
   const applicantSummaryRef = useRef(null);
-  
+
   // Anti-Spam Honeypot States (must remain false for human users)
   const [intakeBotcheck, setIntakeBotcheck] = useState(false);
   const [rfpBotcheck, setRfpBotcheck] = useState(false);
   const [jobBotcheck, setJobBotcheck] = useState(false);
-  
+
   // Toast Notifications State
   const [toastMsg, setToastMsg] = useState(null);
   const [jobToastMsg, setJobToastMsg] = useState(null);
@@ -1103,8 +1103,8 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
 
   const handleMainIntakeSubmit = async (e) => {
     e.preventDefault();
-    if (intakeBotcheck) 
-    return; // Silent drop for automated bots
+    if (intakeBotcheck) return; // Silent drop for automated bots
+
     const nameVal = intakeName.trim();
     if (!NAME_REGEX.test(nameVal)) {
       setIntakeErrors((prev) => ({ ...prev, name: true }));
@@ -1191,6 +1191,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
   const handleJobApplication = async (e) => {
     e.preventDefault();
     if (jobBotcheck) return; // Silent drop for automated bots
+
     const nameVal = applicantName.trim();
     if (!NAME_REGEX.test(nameVal)) {
       setJobErrors((prev) => ({ ...prev, name: true }));
@@ -1209,46 +1210,47 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
       return;
     }
 
-const urlVal = applicantResumeUrl.trim();
- let parsedUrl;
- try {
-   parsedUrl = new URL(urlVal);
- } catch {
-   parsedUrl = null;
- }
+    const urlVal = applicantResumeUrl.trim();
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(urlVal);
+    } catch {
+      parsedUrl = null;
+    }
 
- const ALLOWED_RESUME_HOSTS = [
-   "linkedin.com",
-   "www.linkedin.com",
-   "drive.google.com",
-   "docs.google.com",
-   "dropbox.com",
-   "www.dropbox.com",
-   "1drv.ms",
-   "onedrive.live.com",
-   "github.com",
-   "www.github.com",
- ];
+    const ALLOWED_RESUME_HOSTS = [
+      "linkedin.com",
+      "www.linkedin.com",
+      "drive.google.com",
+      "docs.google.com",
+      "dropbox.com",
+      "www.dropbox.com",
+      "1drv.ms",
+      "onedrive.live.com",
+      "github.com",
+      "www.github.com",
+    ];
 
- const BLOCKED_EXTENSIONS = /\.(exe|msi|bat|cmd|ps1|vbs|js|jar|scr|sh|bin|dmg|pkg|iso|img|zip|rar|7z|tar|gz|dll|apk|hta|lnk)(\?|$)/i;
+    const BLOCKED_EXTENSIONS =
+      /\.(exe|msi|bat|cmd|ps1|vbs|js|jar|scr|sh|bin|dmg|pkg|iso|img|zip|rar|7z|tar|gz|dll|apk|hta|lnk)(\?|$)/i;
 
- const isAllowedHost =
-   parsedUrl &&
-   parsedUrl.protocol === "https:" &&
-   ALLOWED_RESUME_HOSTS.includes(parsedUrl.hostname.toLowerCase());
+    const isAllowedHost =
+      parsedUrl &&
+      parsedUrl.protocol === "https:" &&
+      ALLOWED_RESUME_HOSTS.includes(parsedUrl.hostname.toLowerCase());
 
- if (
-   !isAllowedHost ||
-   BLOCKED_EXTENSIONS.test(parsedUrl.pathname) ||
-   detectInjectionPayload(urlVal)
- ) {
-   setJobErrors((prev) => ({ ...prev, resumeUrl: true }));
-   if (applicantResumeUrlRef.current) applicantResumeUrlRef.current.focus();
-   showToast(
-     "Security Policy: Only HTTPS links from LinkedIn, Google Drive, OneDrive, Dropbox, or GitHub are permitted (no archives or executables)."
-   );
-   return;
- }
+    if (
+      !isAllowedHost ||
+      BLOCKED_EXTENSIONS.test(parsedUrl.pathname) ||
+      detectInjectionPayload(urlVal)
+    ) {
+      setJobErrors((prev) => ({ ...prev, resumeUrl: true }));
+      if (applicantResumeUrlRef.current) applicantResumeUrlRef.current.focus();
+      showToast(
+        "Security Policy: Only HTTPS links from LinkedIn, Google Drive, OneDrive, Dropbox, or GitHub are permitted (no archives or executables)."
+      );
+      return;
+    }
 
     const summaryVal = applicantSummary.trim();
     if (detectInjectionPayload(summaryVal)) {
@@ -1305,6 +1307,7 @@ const urlVal = applicantResumeUrl.trim();
   const handleRfpModalSubmit = async (e) => {
     e.preventDefault();
     if (rfpBotcheck) return; // Silent drop for automated bots
+
     const rfpEmailVal = rfpEmail.trim();
     if (!EMAIL_REGEX.test(rfpEmailVal)) {
       setRfpErrors((prev) => ({ ...prev, email: true }));
@@ -4149,39 +4152,40 @@ const urlVal = applicantResumeUrl.trim();
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-  <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
-    Your Full Name{" "}
-    <span className="field-pill-required">Required</span>
-  </label>
-  <input
-    ref={intakeNameRef}
-    type="text"
-    name="name"
-    id="intake-name"
-    placeholder="e.g. Alex Morgan"
-    maxLength={60}
-    required
-    autoComplete="name"
-    value={intakeName}
-    onChange={handleNameChange}
-    className={`input-mandatory w-full px-4 py-2.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none ${
-      intakeErrors.name ? "input-error" : ""
-    }`}
-  />
-  <input
-    type="checkbox"
-    name="botcheck"
-    checked={intakeBotcheck}
-    onChange={(e) => setIntakeBotcheck(e.target.checked)}
-    tabIndex={-1}
-    autoComplete="off"
-    aria-hidden="true"
-    style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
-  />
-  <div className="text-[0.65rem] text-[var(--text-muted)] mt-1">
-    Letters, spaces, hyphens, and apostrophes only.
-  </div>
-</div>
+                      <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                        Your Full Name{" "}
+                        <span className="field-pill-required">Required</span>
+                      </label>
+                      <input
+                        ref={intakeNameRef}
+                        type="text"
+                        name="name"
+                        id="intake-name"
+                        placeholder="e.g. Alex Morgan"
+                        maxLength={60}
+                        required
+                        autoComplete="name"
+                        value={intakeName}
+                        onChange={handleNameChange}
+                        className={`input-mandatory w-full px-4 py-2.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none ${
+                          intakeErrors.name ? "input-error" : ""
+                        }`}
+                      />
+                      <input
+                        type="checkbox"
+                        name="botcheck"
+                        checked={intakeBotcheck}
+                        onChange={(e) => setIntakeBotcheck(e.target.checked)}
+                        tabIndex={-1}
+                        autoComplete="off"
+                        aria-hidden="true"
+                        style={{
+                          position: "absolute",
+                          left: "-9999px",
+                          opacity: 0,
+                          pointerEvents: "none",
+                        }}
+                      />
                       <div className="text-[0.65rem] text-[var(--text-muted)] mt-1">
                         Letters, spaces, hyphens, and apostrophes only.
                       </div>
@@ -4401,28 +4405,33 @@ const urlVal = applicantResumeUrl.trim();
             noValidate
           >
             <div>
-  <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
-    Selected Focus / Scope
-  </label>
-  <input
-    type="text"
-    name="selected_package"
-    id="form-package"
-    readOnly
-    value={selectedPackage}
-    className="w-full px-3.5 py-2 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs font-semibold outline-none"
-  />
-  <input
-    type="checkbox"
-    name="botcheck"
-    checked={rfpBotcheck}
-    onChange={(e) => setRfpBotcheck(e.target.checked)}
-    tabIndex={-1}
-    autoComplete="off"
-    aria-hidden="true"
-    style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
-  />
-</div>
+              <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                Selected Focus / Scope
+              </label>
+              <input
+                type="text"
+                name="selected_package"
+                id="form-package"
+                readOnly
+                value={selectedPackage}
+                className="w-full px-3.5 py-2 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs font-semibold outline-none"
+              />
+              <input
+                type="checkbox"
+                name="botcheck"
+                checked={rfpBotcheck}
+                onChange={(e) => setRfpBotcheck(e.target.checked)}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  left: "-9999px",
+                  opacity: 0,
+                  pointerEvents: "none",
+                }}
+              />
+            </div>
             <div>
               <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
                 Work Email <span className="field-pill-required">Required</span>
@@ -4585,39 +4594,44 @@ const urlVal = applicantResumeUrl.trim();
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-  <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
-    Full Name{" "}
-    <span className="field-pill-required">Required</span>
-  </label>
-  <input
-    ref={applicantNameRef}
-    type="text"
-    maxLength={60}
-    required
-    placeholder="e.g. Jordan Vance"
-    value={applicantName}
-    onChange={(e) => {
-      setJobErrors((prev) => ({ ...prev, name: false }));
-      setApplicantName(
-        e.target.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'-]/g, "")
-      );
-    }}
-    className={`input-mandatory w-full px-3.5 py-2 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none font-medium ${
-      jobErrors.name ? "input-error" : ""
-    }`}
-  />
-  <input
-    type="checkbox"
-    name="botcheck"
-    checked={jobBotcheck}
-    onChange={(e) => setJobBotcheck(e.target.checked)}
-    tabIndex={-1}
-    autoComplete="off"
-    aria-hidden="true"
-    style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
-  />
-</div>
-<div>
+                <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                  Full Name{" "}
+                  <span className="field-pill-required">Required</span>
+                </label>
+                <input
+                  ref={applicantNameRef}
+                  type="text"
+                  maxLength={60}
+                  required
+                  placeholder="e.g. Jordan Vance"
+                  value={applicantName}
+                  onChange={(e) => {
+                    setJobErrors((prev) => ({ ...prev, name: false }));
+                    setApplicantName(
+                      e.target.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'-]/g, "")
+                    );
+                  }}
+                  className={`input-mandatory w-full px-3.5 py-2 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none font-medium ${
+                    jobErrors.name ? "input-error" : ""
+                  }`}
+                />
+                <input
+                  type="checkbox"
+                  name="botcheck"
+                  checked={jobBotcheck}
+                  onChange={(e) => setJobBotcheck(e.target.checked)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    left: "-9999px",
+                    opacity: 0,
+                    pointerEvents: "none",
+                  }}
+                />
+              </div>
+              <div>
                 <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
                   Email Address{" "}
                   <span className="field-pill-required">Required</span>
