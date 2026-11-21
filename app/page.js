@@ -468,7 +468,12 @@ export default function App() {
   const applicantEmailRef = useRef(null);
   const applicantResumeUrlRef = useRef(null);
   const applicantSummaryRef = useRef(null);
-
+  
+  // Anti-Spam Honeypot States (must remain false for human users)
+  const [intakeBotcheck, setIntakeBotcheck] = useState(false);
+  const [rfpBotcheck, setRfpBotcheck] = useState(false);
+  const [jobBotcheck, setJobBotcheck] = useState(false);
+  
   // Toast Notifications State
   const [toastMsg, setToastMsg] = useState(null);
   const [jobToastMsg, setJobToastMsg] = useState(null);
@@ -1098,6 +1103,8 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
 
   const handleMainIntakeSubmit = async (e) => {
     e.preventDefault();
+    if (intakeBotcheck) 
+    return; // Silent drop for automated bots
     const nameVal = intakeName.trim();
     if (!NAME_REGEX.test(nameVal)) {
       setIntakeErrors((prev) => ({ ...prev, name: true }));
@@ -1138,6 +1145,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
 
     setIntakeSubmitting(true);
     const payload = {
+      botcheck: intakeBotcheck,
       name: nameVal,
       email: emailVal,
       company_size: intakeSize,
@@ -1182,6 +1190,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
 
   const handleJobApplication = async (e) => {
     e.preventDefault();
+    if (jobBotcheck) return; // Silent drop for automated bots
     const nameVal = applicantName.trim();
     if (!NAME_REGEX.test(nameVal)) {
       setJobErrors((prev) => ({ ...prev, name: true }));
@@ -1254,6 +1263,7 @@ const urlVal = applicantResumeUrl.trim();
     setApplicantSubmitting(true);
 
     const payload = {
+      botcheck: jobBotcheck,
       access_key: WEB3FORMS_ACCESS_KEY,
       subject: `[Exaltis Careers] Application for ${activeJobRole.title} — ${nameVal}`,
       from_name: "Exaltis Sovereign Careers Portal",
@@ -1294,6 +1304,7 @@ const urlVal = applicantResumeUrl.trim();
 
   const handleRfpModalSubmit = async (e) => {
     e.preventDefault();
+    if (rfpBotcheck) return; // Silent drop for automated bots
     const rfpEmailVal = rfpEmail.trim();
     if (!EMAIL_REGEX.test(rfpEmailVal)) {
       setRfpErrors((prev) => ({ ...prev, email: true }));
@@ -1318,6 +1329,7 @@ const urlVal = applicantResumeUrl.trim();
 
     setRfpSubmitting(true);
     const payload = {
+      botcheck: rfpBotcheck,
       selected_package: selectedPackage,
       work_email: rfpEmailVal,
       company_scope: rfpScope,
@@ -4142,6 +4154,14 @@ const urlVal = applicantResumeUrl.trim();
                         <span className="field-pill-required">Required</span>
                       </label>
                       <input
+                        type="checkbox"
+                        name="botcheck"
+                        checked={intakeBotcheck}
+                        onChange={(e) => setIntakeBotcheck(e.target.checked)}
+                        tabIndex={-1}
+                        autoComplete="off"
+                        aria-hidden="true"
+                        style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
                         ref={intakeNameRef}
                         type="text"
                         name="name"
@@ -4379,6 +4399,14 @@ const urlVal = applicantResumeUrl.trim();
                 Selected Focus / Scope
               </label>
               <input
+                type="checkbox"
+                name="botcheck"
+                checked={rfpBotcheck}
+                onChange={(e) => setRfpBotcheck(e.target.checked)}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
                 type="text"
                 name="selected_package"
                 id="form-package"
@@ -4554,6 +4582,14 @@ const urlVal = applicantResumeUrl.trim();
                   <span className="field-pill-required">Required</span>
                 </label>
                 <input
+                type="checkbox"
+                name="botcheck"
+                checked={jobBotcheck}
+                onChange={(e) => setJobBotcheck(e.target.checked)}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
                   ref={applicantNameRef}
                   type="text"
                   maxLength={60}
