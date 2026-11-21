@@ -458,10 +458,16 @@ export default function App() {
   const [rfpErrors, setRfpErrors] = useState({});
 
   // Job Application Form State
+  const [applicantName, setApplicantName] = useState("");
   const [applicantEmail, setApplicantEmail] = useState("");
+  const [applicantResumeUrl, setApplicantResumeUrl] = useState("");
+  const [applicantSummary, setApplicantSummary] = useState("");
   const [applicantSubmitting, setApplicantSubmitting] = useState(false);
   const [jobErrors, setJobErrors] = useState({});
-  const applicantFileRef = useRef(null);
+  const applicantNameRef = useRef(null);
+  const applicantEmailRef = useRef(null);
+  const applicantResumeUrlRef = useRef(null);
+  const applicantSummaryRef = useRef(null);
 
   // Toast Notifications State
   const [toastMsg, setToastMsg] = useState(null);
@@ -1070,20 +1076,24 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
     setCadreModalOpen(true);
   };
 
-  const openJobModal = (roleId) => {
+ const openJobModal = (roleId) => {
     if (!JOB_ROLES[roleId]) return;
     setActiveJobRoleKey(roleId);
     setJobErrors({});
+    setApplicantName("");
     setApplicantEmail("");
-    if (applicantFileRef.current) applicantFileRef.current.value = "";
+    setApplicantResumeUrl("");
+    setApplicantSummary("");
     setJobModalOpen(true);
   };
 
-  const closeJobModal = () => {
+ const closeJobModal = () => {
     setJobModalOpen(false);
     setJobErrors({});
+    setApplicantName("");
     setApplicantEmail("");
-    if (applicantFileRef.current) applicantFileRef.current.value = "";
+    setApplicantResumeUrl("");
+    setApplicantSummary("");
   };
 
   const handleNameChange = (e) => {
@@ -1133,11 +1143,11 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
 
   const handleJobApplication = async (e) => {
     e.preventDefault();
-    const emailVal = applicantEmail.trim();
-    if (!EMAIL_REGEX.test(emailVal) || detectInjectionPayload(emailVal)) {
-      setJobErrors((prev) => ({ ...prev, email: true }));
-      if (applicantEmailRef.current) applicantEmailRef.current.focus();
-      showToast("Please provide a valid, standard corporate email address.");
+    const nameVal = applicantName.trim();
+    if (!NAME_REGEX.test(nameVal)) {
+      setJobErrors((prev) => ({ ...prev, name: true }));
+      if (applicantNameRef.current) applicantNameRef.current.focus();
+      showToast("Please provide a valid full name (letters, hyphens, and apostrophes only).");
       return;
     }
 
@@ -1185,11 +1195,11 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
       return;
     }
 
-    const emailVal = intakeEmail.trim();
-    if (!EMAIL_REGEX.test(emailVal)) {
-      setIntakeErrors((prev) => ({ ...prev, email: true }));
-      if (intakeEmailRef.current) intakeEmailRef.current.focus();
-      showToast("Please provide a valid standard corporate email address.");
+   const emailVal = applicantEmail.trim();
+    if (!EMAIL_REGEX.test(emailVal) || detectInjectionPayload(emailVal)) {
+      setJobErrors((prev) => ({ ...prev, email: true }));
+      if (applicantEmailRef.current) applicantEmailRef.current.focus();
+      showToast("Please provide a valid email address.");
       return;
     }
 
@@ -1256,7 +1266,61 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
       setIntakeSubmitting(false);
     }
   };
+const urlVal = applicantResumeUrl.trim();
+    const urlPattern = /^https:\/\/[^\s/$.?#].[^\s]*$/i;
+    if (!urlPattern.test(urlVal) || detectInjectionPayload(urlVal)) {
+      setJobErrors((prev) => ({ ...prev, resumeUrl: true }));
+      if (applicantResumeUrlRef.current) applicantResumeUrlRef.current.focus();
+      showToast("Please provide a valid HTTPS URL (LinkedIn, Google Drive, or Portfolio).");
+      return;
+    }
 
+    const summaryVal = applicantSummary.trim();
+    if (detectInjectionPayload(summaryVal)) {
+      setJobErrors((prev) => ({ ...prev, summary: true }));
+      if (applicantSummaryRef.current) applicantSummaryRef.current.focus();
+      showToast("Security Alert: Summary contains unauthorized script or command syntax.");
+      return;
+    }
+
+    setApplicantSubmitting(true);
+
+    const payload = {
+      access_key: WEB3FORMS_ACCESS_KEY,
+      subject: `[Exaltis Careers] Application for ${activeJobRole.title} — ${nameVal}`,
+      from_name: "Exaltis Sovereign Careers Portal",
+      Applied_Role: activeJobRole.title,
+      Candidate_Name: nameVal,
+      Email: emailVal,
+      Resume_Or_LinkedIn_URL: urlVal,
+      Credentials_Summary: summaryVal || "Not provided",
+    };
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        showJobToast(
+          "Your application has been received. Our HR team will review your dossier and revert back if selected."
+        );
+        closeJobModal();
+      } else {
+        showToast(`Submission error: ${result.message || "Unable to transmit application."}`);
+      }
+    } catch (err) {
+      showToast("Network error while transmitting dossier. Please try again.");
+    } finally {
+      setApplicantSubmitting(false);
+    }
+  };
   const handleRfpModalSubmit = async (e) => {
     e.preventDefault();
     const rfpEmailVal = rfpEmail.trim();
@@ -4509,22 +4573,36 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
           </div>
 
           <form
-            className="pt-4 border-t border-[var(--border-subtle)] space-y-3.5"
+            className="pt-4 border-t border-[var(--border-subtle)] space-y-3"
             id="job-apply-form"
-            action="https://formspree.io/f/xzezezov"
-            method="POST"
-            encType="multipart/form-data"
             onSubmit={handleJobApplication}
             noValidate
           >
-            <input
-              type="hidden"
-              id="applied-role"
-              name="Applied_Role"
-              value={activeJobRole.title}
-            />
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                  Full Name{" "}
+                  <span className="field-pill-required">Required</span>
+                </label>
+                <input
+                  ref={applicantNameRef}
+                  type="text"
+                  maxLength={60}
+                  required
+                  placeholder="e.g. Jordan Vance"
+                  value={applicantName}
+                  onChange={(e) => {
+                    setJobErrors((prev) => ({ ...prev, name: false }));
+                    setApplicantName(
+                      e.target.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'-]/g, "")
+                    );
+                  }}
+                  className={`input-mandatory w-full px-3.5 py-2 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none font-medium ${
+                    jobErrors.name ? "input-error" : ""
+                  }`}
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
                   Email Address{" "}
@@ -4534,10 +4612,9 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
                   ref={applicantEmailRef}
                   type="email"
                   id="applicant-email"
-                  name="Email"
                   maxLength={80}
                   required
-                  placeholder="name@example.com"
+                  placeholder="candidate@domain.com"
                   value={applicantEmail}
                   onChange={(e) => {
                     setJobErrors((prev) => ({ ...prev, email: false }));
@@ -4548,27 +4625,48 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
                   }`}
                 />
               </div>
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
-                  Resume &amp; Cover Dossier (.PDF Only){" "}
-                  <span className="field-pill-required">Required</span>
-                </label>
-                <input
-                  ref={applicantFileRef}
-                  type="file"
-                  id="applicant-doc"
-                  name="Attachment"
-                  required
-                  accept=".pdf,application/pdf"
-                  onChange={(e) => validatePdfFile(e.target)}
-                  className={`input-mandatory w-full px-3 py-1.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none file:mr-2.5 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[0.7rem] file:font-bold file:bg-[var(--badge-bg)] file:text-[var(--cyan-accent)] hover:file:bg-[var(--navy-primary)] hover:file:text-white file:cursor-pointer cursor-pointer ${
-                    jobErrors.doc ? "input-error" : ""
-                  }`}
-                />
-                <div className="text-[0.62rem] text-[var(--text-muted)] mt-1">
-                  Strictly *.pdf format up to 5MB. Other formats rejected.
-                </div>
-              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                LinkedIn Profile or Cloud Resume Link (HTTPS){" "}
+                <span className="field-pill-required">Required</span>
+              </label>
+              <input
+                ref={applicantResumeUrlRef}
+                type="url"
+                maxLength={200}
+                required
+                placeholder="https://linkedin.com/in/yourprofile or Google Drive / Portfolio PDF link"
+                value={applicantResumeUrl}
+                onChange={(e) => {
+                  setJobErrors((prev) => ({ ...prev, resumeUrl: false }));
+                  setApplicantResumeUrl(e.target.value);
+                }}
+                className={`input-mandatory w-full px-3.5 py-2 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none font-medium ${
+                  jobErrors.resumeUrl ? "input-error" : ""
+                }`}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                Certifications &amp; Tactical Experience Summary
+              </label>
+              <textarea
+                ref={applicantSummaryRef}
+                rows={2}
+                maxLength={600}
+                placeholder="Highlight active certifications (CISSP, OSCP, GCFA, AZ-500), years in SOC/VAPT/GRC, or clearance background..."
+                value={applicantSummary}
+                onChange={(e) => {
+                  setJobErrors((prev) => ({ ...prev, summary: false }));
+                  setApplicantSummary(e.target.value);
+                }}
+                className={`w-full px-3.5 py-2 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none ${
+                  jobErrors.summary ? "input-error" : ""
+                }`}
+              ></textarea>
             </div>
 
             <div className="flex items-center justify-between pt-2">
@@ -4612,8 +4710,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
                 )}
               </button>
             </div>
-          </form>
-        </div>
+          </form>        </div>
       </div>
 
       {/* API Key Modal */}
