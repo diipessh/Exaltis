@@ -1140,17 +1140,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
 
     return true;
   };
-
-  const handleJobApplication = async (e) => {
-    e.preventDefault();
-    const nameVal = applicantName.trim();
-    if (!NAME_REGEX.test(nameVal)) {
-      setJobErrors((prev) => ({ ...prev, name: true }));
-      if (applicantNameRef.current) applicantNameRef.current.focus();
-      showToast("Please provide a valid full name (letters, hyphens, and apostrophes only).");
-      return;
-    }
-
     const docInput = applicantFileRef.current;
     if (!validatePdfFile(docInput)) return;
     if (!docInput || !docInput.files || docInput.files.length === 0) {
@@ -1264,6 +1253,23 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
       setIntakeDetails("");
     } finally {
       setIntakeSubmitting(false);
+    }
+    const handleJobApplication = async (e) => {
+    e.preventDefault();
+    const nameVal = applicantName.trim();
+    if (!NAME_REGEX.test(nameVal)) {
+      setJobErrors((prev) => ({ ...prev, name: true }));
+      if (applicantNameRef.current) applicantNameRef.current.focus();
+      showToast("Please provide a valid full name (letters, hyphens, and apostrophes only).");
+      return;
+    }
+
+    const emailVal = applicantEmail.trim();
+    if (!EMAIL_REGEX.test(emailVal) || detectInjectionPayload(emailVal)) {
+      setJobErrors((prev) => ({ ...prev, email: true }));
+      if (applicantEmailRef.current) applicantEmailRef.current.focus();
+      showToast("Please provide a valid email address.");
+      return;
     }
   };
 const urlVal = applicantResumeUrl.trim();
