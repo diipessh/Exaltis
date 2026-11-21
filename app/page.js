@@ -4149,33 +4149,39 @@ const urlVal = applicantResumeUrl.trim();
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
-                        Your Full Name{" "}
-                        <span className="field-pill-required">Required</span>
-                      </label>
-                      <input
-                        type="checkbox"
-                        name="botcheck"
-                        checked={intakeBotcheck}
-                        onChange={(e) => setIntakeBotcheck(e.target.checked)}
-                        tabIndex={-1}
-                        autoComplete="off"
-                        aria-hidden="true"
-                        style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
-                        ref={intakeNameRef}
-                        type="text"
-                        name="name"
-                        id="intake-name"
-                        placeholder="e.g. Alex Morgan"
-                        maxLength={60}
-                        required
-                        autoComplete="name"
-                        value={intakeName}
-                        onChange={handleNameChange}
-                        className={`input-mandatory w-full px-4 py-2.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none ${
-                          intakeErrors.name ? "input-error" : ""
-                        }`}
-                      />
+  <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+    Your Full Name{" "}
+    <span className="field-pill-required">Required</span>
+  </label>
+  <input
+    ref={intakeNameRef}
+    type="text"
+    name="name"
+    id="intake-name"
+    placeholder="e.g. Alex Morgan"
+    maxLength={60}
+    required
+    autoComplete="name"
+    value={intakeName}
+    onChange={handleNameChange}
+    className={`input-mandatory w-full px-4 py-2.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none ${
+      intakeErrors.name ? "input-error" : ""
+    }`}
+  />
+  <input
+    type="checkbox"
+    name="botcheck"
+    checked={intakeBotcheck}
+    onChange={(e) => setIntakeBotcheck(e.target.checked)}
+    tabIndex={-1}
+    autoComplete="off"
+    aria-hidden="true"
+    style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
+  />
+  <div className="text-[0.65rem] text-[var(--text-muted)] mt-1">
+    Letters, spaces, hyphens, and apostrophes only.
+  </div>
+</div>
                       <div className="text-[0.65rem] text-[var(--text-muted)] mt-1">
                         Letters, spaces, hyphens, and apostrophes only.
                       </div>
@@ -4395,26 +4401,28 @@ const urlVal = applicantResumeUrl.trim();
             noValidate
           >
             <div>
-              <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
-                Selected Focus / Scope
-              </label>
-              <input
-                type="checkbox"
-                name="botcheck"
-                checked={rfpBotcheck}
-                onChange={(e) => setRfpBotcheck(e.target.checked)}
-                tabIndex={-1}
-                autoComplete="off"
-                aria-hidden="true"
-                style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
-                type="text"
-                name="selected_package"
-                id="form-package"
-                readOnly
-                value={selectedPackage}
-                className="w-full px-3.5 py-2 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs font-semibold outline-none"
-              />
-            </div>
+  <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+    Selected Focus / Scope
+  </label>
+  <input
+    type="text"
+    name="selected_package"
+    id="form-package"
+    readOnly
+    value={selectedPackage}
+    className="w-full px-3.5 py-2 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs font-semibold outline-none"
+  />
+  <input
+    type="checkbox"
+    name="botcheck"
+    checked={rfpBotcheck}
+    onChange={(e) => setRfpBotcheck(e.target.checked)}
+    tabIndex={-1}
+    autoComplete="off"
+    aria-hidden="true"
+    style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
+  />
+</div>
             <div>
               <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
                 Work Email <span className="field-pill-required">Required</span>
@@ -4577,38 +4585,39 @@ const urlVal = applicantResumeUrl.trim();
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
-                  Full Name{" "}
-                  <span className="field-pill-required">Required</span>
-                </label>
-                <input
-                type="checkbox"
-                name="botcheck"
-                checked={jobBotcheck}
-                onChange={(e) => setJobBotcheck(e.target.checked)}
-                tabIndex={-1}
-                autoComplete="off"
-                aria-hidden="true"
-                style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
-                  ref={applicantNameRef}
-                  type="text"
-                  maxLength={60}
-                  required
-                  placeholder="e.g. Jordan Vance"
-                  value={applicantName}
-                  onChange={(e) => {
-                    setJobErrors((prev) => ({ ...prev, name: false }));
-                    setApplicantName(
-                      e.target.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'-]/g, "")
-                    );
-                  }}
-                  className={`input-mandatory w-full px-3.5 py-2 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none font-medium ${
-                    jobErrors.name ? "input-error" : ""
-                  }`}
-                />
-              </div>
-
-              <div>
+  <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+    Full Name{" "}
+    <span className="field-pill-required">Required</span>
+  </label>
+  <input
+    ref={applicantNameRef}
+    type="text"
+    maxLength={60}
+    required
+    placeholder="e.g. Jordan Vance"
+    value={applicantName}
+    onChange={(e) => {
+      setJobErrors((prev) => ({ ...prev, name: false }));
+      setApplicantName(
+        e.target.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'-]/g, "")
+      );
+    }}
+    className={`input-mandatory w-full px-3.5 py-2 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none font-medium ${
+      jobErrors.name ? "input-error" : ""
+    }`}
+  />
+  <input
+    type="checkbox"
+    name="botcheck"
+    checked={jobBotcheck}
+    onChange={(e) => setJobBotcheck(e.target.checked)}
+    tabIndex={-1}
+    autoComplete="off"
+    aria-hidden="true"
+    style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}
+  />
+</div>
+<div>
                 <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
                   Email Address{" "}
                   <span className="field-pill-required">Required</span>
