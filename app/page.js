@@ -490,7 +490,6 @@ export default function App() {
   const intakeDetailsRef = useRef(null);
   const rfpEmailRef = useRef(null);
   const rfpScopeRef = useRef(null);
-  const applicantEmailRef = useRef(null);
   const vcisoPainpointRef = useRef(null);
 
   /* ==========================================================================
@@ -519,7 +518,6 @@ export default function App() {
      HEAD ASSETS INJECTION (FONTS + PHOSPHOR ICONS) & THEME INIT
      ========================================================================== */
   useEffect(() => {
-    // Inject Ubuntu Google Font cleanly into <head>
     if (!document.querySelector('link[href*="family=Ubuntu"]')) {
       const fontLink = document.createElement("link");
       fontLink.rel = "stylesheet";
@@ -528,7 +526,6 @@ export default function App() {
       document.head.appendChild(fontLink);
     }
 
-    // Inject Phosphor Icons Fill & Bold CSS cleanly into <head>
     if (!document.querySelector('link[href*="@phosphor-icons/web@2.1.1/src/fill"]')) {
       const phFill = document.createElement("link");
       phFill.rel = "stylesheet";
@@ -541,7 +538,6 @@ export default function App() {
       document.head.appendChild(phBold);
     }
 
-    // Theme initialization
     try {
       const hour = new Date().getHours();
       const autoTheme = hour >= 6 && hour < 18 ? "light" : "dark";
@@ -554,7 +550,6 @@ export default function App() {
       document.documentElement.setAttribute("data-theme", "dark");
     }
 
-    // Load stored API key
     try {
       const storedKey =
         localStorage.getItem("exaltis_gemini_api_key") ||
@@ -570,7 +565,6 @@ export default function App() {
       "Exaltis Systems | Engineered for Deeper Digital Defense | exaltissystems.com";
   }, []);
 
-  // Sync theme with documentElement & Three.js materials
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     const { shieldMat, outerMat, pMat } = threeMaterialsRef.current;
@@ -1076,7 +1070,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
     setCadreModalOpen(true);
   };
 
- const openJobModal = (roleId) => {
+  const openJobModal = (roleId) => {
     if (!JOB_ROLES[roleId]) return;
     setActiveJobRoleKey(roleId);
     setJobErrors({});
@@ -1087,7 +1081,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
     setJobModalOpen(true);
   };
 
- const closeJobModal = () => {
+  const closeJobModal = () => {
     setJobModalOpen(false);
     setJobErrors({});
     setApplicantName("");
@@ -1102,76 +1096,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
     setIntakeName(clean);
   };
 
-  const validatePdfFile = (fileInput) => {
-    setJobErrors((prev) => ({ ...prev, doc: false }));
-    if (!fileInput || !fileInput.files || fileInput.files.length === 0)
-      return true;
-
-    const file = fileInput.files[0];
-    const fileName = file.name.toLowerCase();
-
-    if (!fileName.endsWith(".pdf")) {
-      fileInput.value = "";
-      setJobErrors((prev) => ({ ...prev, doc: true }));
-      showToast(
-        "Security Rejection: Only official *.pdf documents are accepted."
-      );
-      return false;
-    }
-
-    if (file.type && file.type !== "application/pdf") {
-      fileInput.value = "";
-      setJobErrors((prev) => ({ ...prev, doc: true }));
-      showToast(
-        "Security Rejection: Invalid file type. Must be a valid PDF document."
-      );
-      return false;
-    }
-
-    const maxBytes = 5 * 1024 * 1024;
-    if (file.size > maxBytes) {
-      fileInput.value = "";
-      setJobErrors((prev) => ({ ...prev, doc: true }));
-      showToast(
-        "Security Rejection: File size exceeds the 5MB sovereign limit."
-      );
-      return false;
-    }
-
-    return true;
-  };
-    const docInput = applicantFileRef.current;
-    if (!validatePdfFile(docInput)) return;
-    if (!docInput || !docInput.files || docInput.files.length === 0) {
-      setJobErrors((prev) => ({ ...prev, doc: true }));
-      if (docInput) docInput.focus();
-      showToast("A resume/dossier in .PDF format is strictly required.");
-      return;
-    }
-
-    setApplicantSubmitting(true);
-    const formData = new FormData(e.target);
-
-    try {
-      await fetch("https://formspree.io/f/xzezezov", {
-        method: "POST",
-        body: formData,
-        headers: { Accept: "application/json" },
-      });
-      showJobToast(
-        "Your application has been received. Our HR team will review your dossier and revert back if selected."
-      );
-      closeJobModal();
-    } catch (err) {
-      showJobToast(
-        "Your application has been received. Our HR team will review your dossier and revert back if selected."
-      );
-      closeJobModal();
-    } finally {
-      setApplicantSubmitting(false);
-    }
-  };
-
   const handleMainIntakeSubmit = async (e) => {
     e.preventDefault();
     const nameVal = intakeName.trim();
@@ -1184,11 +1108,11 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
       return;
     }
 
-   const emailVal = applicantEmail.trim();
-    if (!EMAIL_REGEX.test(emailVal) || detectInjectionPayload(emailVal)) {
-      setJobErrors((prev) => ({ ...prev, email: true }));
-      if (applicantEmailRef.current) applicantEmailRef.current.focus();
-      showToast("Please provide a valid email address.");
+    const emailVal = intakeEmail.trim();
+    if (!EMAIL_REGEX.test(emailVal)) {
+      setIntakeErrors((prev) => ({ ...prev, email: true }));
+      if (intakeEmailRef.current) intakeEmailRef.current.focus();
+      showToast("Please provide a valid standard corporate email address.");
       return;
     }
 
@@ -1254,13 +1178,17 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
     } finally {
       setIntakeSubmitting(false);
     }
-    const handleJobApplication = async (e) => {
+  };
+
+  const handleJobApplication = async (e) => {
     e.preventDefault();
     const nameVal = applicantName.trim();
     if (!NAME_REGEX.test(nameVal)) {
       setJobErrors((prev) => ({ ...prev, name: true }));
       if (applicantNameRef.current) applicantNameRef.current.focus();
-      showToast("Please provide a valid full name (letters, hyphens, and apostrophes only).");
+      showToast(
+        "Please provide a valid full name (letters, hyphens, and apostrophes only)."
+      );
       return;
     }
 
@@ -1271,13 +1199,15 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
       showToast("Please provide a valid email address.");
       return;
     }
-  };
-const urlVal = applicantResumeUrl.trim();
+
+    const urlVal = applicantResumeUrl.trim();
     const urlPattern = /^https:\/\/[^\s/$.?#].[^\s]*$/i;
     if (!urlPattern.test(urlVal) || detectInjectionPayload(urlVal)) {
       setJobErrors((prev) => ({ ...prev, resumeUrl: true }));
       if (applicantResumeUrlRef.current) applicantResumeUrlRef.current.focus();
-      showToast("Please provide a valid HTTPS URL (LinkedIn, Google Drive, or Portfolio).");
+      showToast(
+        "Please provide a valid HTTPS URL (LinkedIn, Google Drive, or Portfolio)."
+      );
       return;
     }
 
@@ -1285,7 +1215,9 @@ const urlVal = applicantResumeUrl.trim();
     if (detectInjectionPayload(summaryVal)) {
       setJobErrors((prev) => ({ ...prev, summary: true }));
       if (applicantSummaryRef.current) applicantSummaryRef.current.focus();
-      showToast("Security Alert: Summary contains unauthorized script or command syntax.");
+      showToast(
+        "Security Alert: Summary contains unauthorized script or command syntax."
+      );
       return;
     }
 
@@ -1319,7 +1251,9 @@ const urlVal = applicantResumeUrl.trim();
         );
         closeJobModal();
       } else {
-        showToast(`Submission error: ${result.message || "Unable to transmit application."}`);
+        showToast(
+          `Submission error: ${result.message || "Unable to transmit application."}`
+        );
       }
     } catch (err) {
       showToast("Network error while transmitting dossier. Please try again.");
@@ -1327,6 +1261,7 @@ const urlVal = applicantResumeUrl.trim();
       setApplicantSubmitting(false);
     }
   };
+
   const handleRfpModalSubmit = async (e) => {
     e.preventDefault();
     const rfpEmailVal = rfpEmail.trim();
@@ -1404,8 +1339,7 @@ const urlVal = applicantResumeUrl.trim();
         /* ==========================================================================
            1. GLOBAL STRICT UBUNTU TYPOGRAPHY & DESIGN TOKENS (CASCADE-SAFE)
            ========================================================================== */
-        
-          * {
+        * {
           box-sizing: border-box;
           transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
         }
@@ -1418,18 +1352,17 @@ const urlVal = applicantResumeUrl.trim();
           font-family: "Phosphor-Fill", "Phosphor-Bold", "Phosphor" !important;
         }
 
-          html {
-            scroll-behavior: smooth;
-          }
+        html {
+          scroll-behavior: smooth;
+        }
 
-          body {
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            line-height: 1.6;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-          }
-        
+        body {
+          background-color: var(--bg-base);
+          color: var(--text-main);
+          line-height: 1.6;
+          overflow-x: hidden;
+          -webkit-font-smoothing: antialiased;
+        }
 
         .font-mono-cyber {
           font-family: 'Ubuntu', sans-serif !important;
@@ -4716,7 +4649,8 @@ const urlVal = applicantResumeUrl.trim();
                 )}
               </button>
             </div>
-          </form>        </div>
+          </form>
+        </div>
       </div>
 
       {/* API Key Modal */}
