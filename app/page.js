@@ -1,0 +1,4873 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import * as THREE from "three";
+
+/* ==========================================================================
+   STATIC DATA: CADRE CHARTERS & CAREER ROLES
+   ========================================================================== */
+const CADRE_DATA = {
+  arch: {
+    code: "// CADRE: ARCH-01",
+    title: "Office of the Chief Executive & Principal Architect",
+    subtitle: "Strategic Sovereignty & Enterprise Cryptographic Architecture",
+    content: `
+      <div class="p-4 rounded-xl bg-[var(--terminal-bg)] border border-[var(--border-subtle)] font-mono-cyber space-y-2 mb-4">
+        <div class="flex justify-between"><span>OPERATIONAL POST:</span> <span class="text-white font-bold">Principal Systems Architect</span></div>
+        <div class="flex justify-between"><span>GOVERNANCE CLEARANCE:</span> <span class="text-[var(--cyan-accent)] font-bold">Tier-3 Sovereign Enclave</span></div>
+        <div class="flex justify-between"><span>ESCALATION SLA:</span> <span class="text-emerald-400 font-bold">&lt; 30 Minutes (Board Level)</span></div>
+      </div>
+      <h4 class="text-sm font-bold text-[var(--cyan-accent)] mb-1">Mission Mandate</h4>
+      <p class="mb-3">
+        Directs overarching zero-trust architecture, multi-cloud isolation enclaves, and cryptographic boundary defense across client enterprise footprints. Maintains sole escalation oversight for sovereign data residency across North American and European sectors.
+      </p>
+      <h4 class="text-sm font-bold text-[var(--cyan-accent)] mb-1">Certified Framework Clearances</h4>
+      <p class="mb-3">
+        Principal holds active CISSP, CCSP, and TOGAF 9.2 Enterprise Architecture credentials with 20+ years guiding Fortune 500 and mid-market organizations.
+      </p>
+      <h4 class="text-sm font-bold text-[var(--cyan-accent)] mb-1">OPSEC Protocol</h4>
+      <p>
+        Attributed solely by institutional call-sign to ensure complete immunity from targeted spear-phishing and social-engineering campaigns directed against client leadership enclaves.
+      </p>
+    `,
+  },
+  gov: {
+    code: "// CADRE: GOV-02",
+    title: "Directorate of Information Security & vCISO Advisory",
+    subtitle: "Continuous Governance, Risk, and Multi-Framework Compliance",
+    content: `
+      <div class="p-4 rounded-xl bg-[var(--terminal-bg)] border border-[var(--border-subtle)] font-mono-cyber space-y-2 mb-4">
+        <div class="flex justify-between"><span>MANDATE:</span> <span class="text-white font-bold">Turnkey Audit Readiness & GRC</span></div>
+        <div class="flex justify-between"><span>FRAMEWORK OVERSIGHT:</span> <span class="text-[var(--cyan-accent)] font-bold">SOC 2 • ISO 27001 • FERPA • HIPAA</span></div>
+        <div class="flex justify-between"><span>ATTESTATION TRACK:</span> <span class="text-emerald-400 font-bold">100% Clean Audit Opinions</span></div>
+      </div>
+      <h4 class="text-sm font-bold text-[var(--navy-bright)] mb-1">Directorate Charter</h4>
+      <p class="mb-3">
+        Acts as the sovereign fractional CISO for high-growth enterprises. Directs comprehensive gap matrices, continuous evidence lockers (Vanta, Drata), vendor risk management, and board-level risk registers.
+      </p>
+      <h4 class="text-sm font-bold text-[var(--navy-bright)] mb-1">Bench Qualifications</h4>
+      <p class="mb-3">
+        Led by certified CISA, CRISC, and ISO/IEC 27001 Lead Auditors with decades of direct Big-4 audit committee defense experience.
+      </p>
+      <h4 class="text-sm font-bold text-[var(--navy-bright)] mb-1">Continuous Evidence Flow</h4>
+      <p>
+        Transforms seasonal, panic-driven audits into programmatic 24/7 background telemetry collection with automated API proof generation.
+      </p>
+    `,
+  },
+  soc: {
+    code: "// CADRE: SOC-03",
+    title: "Autonomous SOC & Threat Operations Command",
+    subtitle: "24/7/365 Managed Extended Detection and Response (MXDR)",
+    content: `
+      <div class="p-4 rounded-xl bg-[var(--terminal-bg)] border border-[var(--border-subtle)] font-mono-cyber space-y-2 mb-4">
+        <div class="flex justify-between"><span>WATCH POST:</span> <span class="text-white font-bold">24/7/365 Continuous Watch</span></div>
+        <div class="flex justify-between"><span>P1 CONTAINMENT SLA:</span> <span class="text-emerald-400 font-bold">&lt; 15 Minutes Guaranteed</span></div>
+        <div class="flex justify-between"><span>SOAR AUTOMATION:</span> <span class="text-[var(--cyan-accent)] font-bold">Sub-Second Endpoint Isolation</span></div>
+      </div>
+      <h4 class="text-sm font-bold text-[var(--cyan-accent)] mb-1">Operational Mandate</h4>
+      <p class="mb-3">
+        Commands continuous telemetry ingestion from endpoints, cloud runtimes, identity providers, and network boundaries. Deploys custom Sigma and YARA rules to detect adversary behaviors and sever active lateral conduits.
+      </p>
+      <h4 class="text-sm font-bold text-[var(--cyan-accent)] mb-1">Analyst Credentials</h4>
+      <p class="mb-3">
+        Staffed by GIAC GSE, GCFA, and GNFA incident commanders. Zero offshore contractor outsourcing.
+      </p>
+      <h4 class="text-sm font-bold text-[var(--cyan-accent)] mb-1">Human-in-the-Loop Synthesis</h4>
+      <p>
+        Machine-speed SOAR eviction executes repetitive isolation in seconds, while senior human hunters conduct continuous hypothesis probes into hidden adversary dwell time.
+      </p>
+    `,
+  },
+  red: {
+    code: "// CADRE: RED-04",
+    title: "Offensive Security & Red Team Operations Cell",
+    subtitle: "VAPT, Threat Emulation, and Zero-Day Exploitation Research",
+    content: `
+      <div class="p-4 rounded-xl bg-[var(--terminal-bg)] border border-red-500/30 font-mono-cyber space-y-2 mb-4">
+        <div class="flex justify-between"><span>SIMULATION SCOPE:</span> <span class="text-white font-bold">Web, API, Cloud, AD Topologies</span></div>
+        <div class="flex justify-between"><span>STANDARDS COMPLIANCE:</span> <span class="text-red-400 font-bold">OWASP Top 10 • CREST CRT</span></div>
+        <div class="flex justify-between"><span>DELIVERABLE:</span> <span class="text-[var(--cyan-accent)] font-bold">Proof of Exploit + Remediation Code</span></div>
+      </div>
+      <h4 class="text-sm font-bold text-red-400 mb-1">Offensive Charter</h4>
+      <p class="mb-3">
+        Stress-tests enterprise defensive perimeters before adversaries can strike. Simulates advanced persistent threats (APTs), living-off-the-land techniques, Active Directory credential escalation, and zero-day API bypasses.
+      </p>
+      <h4 class="text-sm font-bold text-red-400 mb-1">Specialized Certifications</h4>
+      <p class="mb-3">
+        Operators hold OSCP, GXPN, and CRTE credentials.
+      </p>
+      <h4 class="text-sm font-bold text-red-400 mb-1">Remediation First</h4>
+      <p>
+        Every vulnerability identified is accompanied by verified source code fixes, network ACL adjustments, and a mandatory 30-day verification re-test.
+      </p>
+    `,
+  },
+  inf: {
+    code: "// CADRE: INF-05",
+    title: "Enterprise Bedrock Systems Engineering",
+    subtitle: "Zero-Trust Cloud Architecture, IAM Federation & Workplace EUC",
+    content: `
+      <div class="p-4 rounded-xl bg-[var(--terminal-bg)] border border-[var(--border-subtle)] font-mono-cyber space-y-2 mb-4">
+        <div class="flex justify-between"><span>AVAILABILITY TARGET:</span> <span class="text-white font-bold">99.99% Tier-4 Topology Uptime</span></div>
+        <div class="flex justify-between"><span>PROVISIONING:</span> <span class="text-[var(--navy-bright)] font-bold">Zero-Touch Intune & Jamf MDM</span></div>
+        <div class="flex justify-between"><span>BACKUP ENCLAVE:</span> <span class="text-emerald-400 font-bold">Air-Gapped Immutable WORM</span></div>
+      </div>
+      <h4 class="text-sm font-bold text-[var(--navy-bright)] mb-1">Engineering Mandate</h4>
+      <p class="mb-3">
+        Engineers the hardened foundation of enterprise computing: centralized Entra ID / AWS IAM Identity Center fabrics, CIS Benchmark endpoint enforcement, and air-gapped immutable disaster recovery topologies.
+      </p>
+      <h4 class="text-sm font-bold text-[var(--navy-bright)] mb-1">Certifications & Standards</h4>
+      <p class="mb-3">
+        AWS Certified Security - Specialty, Microsoft Certified: Azure Solutions Architect Expert, and ITIL v4 Master certified.
+      </p>
+      <h4 class="text-sm font-bold text-[var(--navy-bright)] mb-1">Resilience Standard</h4>
+      <p>
+        Guarantees RPO under 15 minutes and RTO under 1 hour for business-critical database and application clusters.
+      </p>
+    `,
+  },
+  opsec: {
+    code: "// CADRE: OPSEC-06",
+    title: "Non-Attributable Defense Protocol",
+    subtitle: "Institutional Operational Security (OPSEC) Protocol",
+    content: `
+      <div class="p-4 rounded-xl bg-[var(--terminal-bg)] border border-emerald-500/30 font-mono-cyber space-y-2 mb-4">
+        <div class="flex justify-between"><span>DATA RESIDENCY:</span> <span class="text-emerald-400 font-bold">100% Non-Custodial Regional Enclave</span></div>
+        <div class="flex justify-between"><span>EXPOSURE FOOTPRINT:</span> <span class="text-white font-bold">Zero Civilian Surface Trace</span></div>
+        <div class="flex justify-between"><span>LEGAL PROTECTION:</span> <span class="text-[var(--cyan-accent)] font-bold">Mutual Sovereign Institutional NDA</span></div>
+      </div>
+      <h4 class="text-sm font-bold text-emerald-400 mb-1">The OPSEC Rationale</h4>
+      <p class="mb-3">
+        In tier-1 cybersecurity and mission-critical defense, publishing personal executive identities and staff rosters is an invitation for adversary spear-phishing, SIM-swapping, and targeted extortion.
+      </p>
+      <h4 class="text-sm font-bold text-emerald-400 mb-1">Our Institutional Guarantee</h4>
+      <p class="mb-3">
+        Exaltis Systems guarantees complete institutional continuity. Every client engagement is backed by formal, bonded contractual SLAs, verified security clearances, and principal architects with over two decades of verifiable track records.
+      </p>
+      <h4 class="text-sm font-bold text-emerald-400 mb-1">Non-Custodial Architecture</h4>
+      <p>
+        We never take custody of your private cryptographic keys, plaintext data, or client intellectual property. Defense is performed via zero-trust API orchestration within your sovereign cloud tenancy.
+      </p>
+    `,
+  },
+};
+
+const JOB_ROLES = {
+  role1: {
+    title: "Senior MXDR Threat Hunter",
+    subtitle: "SOC Operations // 24/7 Threat Hunting",
+    about:
+      "Exaltis Systems is seeking a Senior MXDR Threat Hunter to lead advanced detection and response operations. In this role, you will actively investigate sophisticated threat actors across complex hybrid environments, leveraging Managed Extended Detection and Response (MXDR) platforms to identify anomalies that bypass standard security controls.",
+    responsibilities: [
+      "Proactively hunt for advanced persistent threats (APTs) across endpoints, networks, and cloud workloads.",
+      "Analyze malware, exploit kits, and lateral movement techniques to develop high-fidelity detection logic and threat intelligence signatures.",
+      "Lead incident response investigations, conducting forensic triage and root cause analysis during active breaches.",
+      "Automate response playbooks within SOAR platforms to accelerate containment times.",
+    ],
+    qualifications:
+      "Minimum 5+ years in a senior SOC, Incident Response, or Threat Hunting role. Deep expertise in EDR telemetry, SIEM query languages, and network traffic analysis. Advanced certifications (CISSP, GCIA, GCIH, or equivalent) are highly preferred.",
+  },
+  role2: {
+    title: "Principal VAPT Penetration Tester",
+    subtitle: "Offensive Security // VAPT & Threat Emulation",
+    about:
+      "We are searching for a highly capable Principal VAPT Penetration Tester to spearhead our offensive security engagements. You will be responsible for executing rigorous vulnerability assessments and penetration tests across critical enterprise infrastructure, complex web applications, and custom APIs, simulating real-world adversary tactics.",
+    responsibilities: [
+      "Lead comprehensive Web Application Penetration Testing and internal/external network infrastructure exploitation.",
+      "Leverage advanced methodologies, including Anti-Gravity testing frameworks and custom exploit development, to bypass modern defenses.",
+      "Deliver executive-level debriefs and highly technical remediation reports translating raw vulnerabilities into prioritized business risks.",
+      "Mentor junior red team members and refine Exaltis Systems' proprietary testing methodologies.",
+    ],
+    qualifications:
+      "Extensive background in offensive security with a proven track record in application and network testing. Industry-recognized certifications such as OSCP, OSCE, or CISSP. Proficiency in Python, Bash, and industry-standard frameworks (Burp Suite Pro, Metasploit, OWASP Top 10).",
+  },
+  role3: {
+    title: "Lead Compliance & SOC 2 Architect",
+    subtitle: "Governance & vCISO // Audit Readiness & GRC",
+    about:
+      "The Lead Compliance & SOC 2 Architect acts as the bridge between deeply technical security controls and executive regulatory requirements. You will design, implement, and audit security architectures that meet strict compliance mandates, acting as a strategic advisor to our enterprise clients navigating complex GRC landscapes.",
+    responsibilities: [
+      "Architect and validate secure, compliant cloud environments, with a strong emphasis on Azure Security and multi-cloud architectures.",
+      "Drive SOC 2 Type I and Type II readiness programs from initial gap assessment to final auditor attestation.",
+      "Implement automated compliance guardrails and continuous monitoring solutions within CI/CD pipelines.",
+      "Develop foundational governance documentation, including incident response plans, vendor risk management policies, and business continuity strategies.",
+    ],
+    qualifications:
+      "Deep expertise in IT governance, risk, and compliance frameworks (SOC 2, ISO 27001, NIST). Proven experience engineering secure cloud infrastructure (Azure Fundamentals/Security certifications such as AZ-500 are highly regarded). Excellent stakeholder management and vCISO-level communication skills.",
+  },
+};
+
+/* ==========================================================================
+   OWASP INPUT SANITIZATION & SECURITY INJECTION SHIELD
+   ========================================================================== */
+const NAME_REGEX = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,60}$/;
+const EMAIL_REGEX =
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+const INJECTION_PATTERNS = [
+  /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|EXEC|EXECUTE)\b|--|\bOR\b\s+['"\d]=\s*['"\d]|;\s*(SELECT|DROP|SHUTDOWN))/i,
+  /(<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>|javascript:|onerror\s*=|onload\s*=|eval\(|<iframe|<object|<embed)/i,
+  /(\|\||&&|;\s*(rm|cat|ls|chmod|wget|curl|nc|bash|sh|cmd|powershell)|`|\$\(|\b(cmd\.exe|powershell\.exe)\b)/i,
+  /(\.\.\/|\.\.\\|\/etc\/passwd|\/windows\/system32)/i,
+];
+
+function detectInjectionPayload(str) {
+  if (!str || typeof str !== "string") return false;
+  for (let i = 0; i < INJECTION_PATTERNS.length; i++) {
+    if (INJECTION_PATTERNS[i].test(str)) return true;
+  }
+  return false;
+}
+
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str).replace(/[&<>'"]/g, function (tag) {
+    return (
+      {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "'": "&#39;",
+        '"': "&quot;",
+      }[tag] || tag
+    );
+  });
+}
+
+function formatMarkdownToHTML(md) {
+  if (!md) return "";
+  let safe = escapeHtml(md);
+  let html = safe
+    .replace(
+      /^### (.*$)/gim,
+      '<h4 class="text-base font-bold text-[var(--cyan-accent)] mt-4 mb-1.5">$1</h4>'
+    )
+    .replace(
+      /^## (.*$)/gim,
+      '<h3 class="text-lg font-bold text-[var(--navy-bright)] mt-5 mb-2">$1</h3>'
+    )
+    .replace(
+      /^# (.*$)/gim,
+      '<h2 class="text-xl font-bold text-[var(--text-main)] mt-6 mb-2.5">$1</h2>'
+    )
+    .replace(
+      /\*\*(.*?)\*\*/gim,
+      '<strong class="text-[var(--text-main)] font-bold">$1</strong>'
+    )
+    .replace(/\*(.*?)\*/gim, '<em class="text-[var(--text-muted)]">$1</em>')
+    .replace(
+      /`([^`]+)`/gim,
+      '<code class="px-1.5 py-0.5 rounded bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--cyan-accent)] font-mono-cyber text-[0.8em]">$1</code>'
+    )
+    .replace(
+      /^\s*[\-\*]\s+(.*)$/gim,
+      '<li class="text-xs text-[var(--text-muted)] leading-relaxed pl-2">$1</li>'
+    )
+    .replace(
+      /\n\n+/gim,
+      '<p class="my-2.5 text-xs leading-relaxed text-[var(--text-muted)]"></p>'
+    );
+  return html;
+}
+
+function getSovereignThreatFallback(query) {
+  const qLower = query.toLowerCase();
+  if (qLower.includes("xz") || qLower.includes("3094")) {
+    return `### **EXECUTIVE THREAT SUMMARY & CVSS/SEVERITY SCORE**
+**Target Vector:** CVE-2024-3094 (XZ Utils Liblzma Upstream Supply-Chain Backdoor)  
+**CVSS v3.1 Base Score:** **10.0 (CRITICAL)** // Attack Vector: Network, Privileges: None, Impact: Complete Root Compromise.
+
+### **ACTIVE ATTACK VECTORS & AFFECTED TOPOLOGIES**
+- **Affected Distributions:** Debian testing/unstable, Fedora Rawhide/40, openSUSE Tumbleweed/MicroOS running \`xz-utils\` 5.6.0 & 5.6.1.
+- **Exploitation Mechanism:** Multi-stage malicious payload injected during release tarball creation targeting \`systemd\` notifying sockets and hooking \`RSA_public_decrypt\` in OpenSSH \`sshd\`.
+
+### **MITRE ATT&CK TECHNIQUES IDENTIFIED**
+- **T1195.001:** Supply Chain Compromise: Compromise Software Dependencies
+- **T1059.006:** Command and Scripting Interpreter: Python/M4/Shell Obfuscation
+- **T1556:** Modify Authentication Process (OpenSSH Pre-Auth Hook)
+
+### **EXALTIS ZERO-TRUST CONTAINMENT PLAYBOOK**
+1. **Sub-Minute Telemetry Query:** Scan all container images and Linux hosts for \`liblzma.so.5.6.0\` / \`liblzma.so.5.6.1\`.
+2. **Immediate Eviction:** Downgrade packages to \`xz-utils 5.4.x\` or deploy hardened sovereign Alpine/RHEL images.
+3. **Perimeter Isolation:** Enforce microsegmentation on port 22 and restrict direct SSH access via Exaltis Zero-Trust Identity Bastions.`;
+  } else {
+    return `### **EXECUTIVE THREAT SUMMARY & CVSS/SEVERITY SCORE**
+**Target Vector:** ${escapeHtml(query)}  
+**CVSS / Severity Rating:** **HIGH / CRITICAL EXPOSURE**
+
+### **ACTIVE ATTACK VECTORS & AFFECTED TOPOLOGIES**
+- **Vulnerability Surface:** Unauthenticated API endpoints, identity federation trust boundaries, and unpatched cloud workloads.
+- **Blast Radius:** Lateral movement potential across AWS IAM roles, Azure Entra ID tenants, and Kubernetes runtime clusters.
+
+### **MITRE ATT&CK TECHNIQUES IDENTIFIED**
+- **T1078:** Valid Accounts / Privilege Escalation
+- **T1068:** Exploitation for Privilege Escalation
+- **T1046:** Network Service Discovery & Lateral Spread
+
+### **EXALTIS ZERO-TRUST CONTAINMENT PLAYBOOK**
+1. **Machine-Speed Isolation:** Apply Exaltis SOAR playbook EX-AUTOPRIV-01 to immediately isolate affected host endpoints.
+2. **Credential Rotation:** Trigger automated API key and session token invalidation across all IAM identity providers.
+3. **Continuous Attestation:** Deploy kernel-level behavioral monitoring to prevent persistent Living-off-the-Land callbacks.`;
+  }
+}
+
+function getSovereignVCISOFallback(industry, framework, cloud) {
+  return `### **1. EXECUTIVE AUDIT READINESS ESTIMATION**
+- **Current Posture Score:** **62 / 100** (Moderate Risk Exposure)
+- **Target Compliance:** **${escapeHtml(framework)}** on **${escapeHtml(cloud)}**
+- **Target Attestation Timeline:** **90 Days with Exaltis Sovereign Automation**
+
+### **2. TOP 3 CRITICAL GAP EXPOSURES**
+1. **IAM Boundary Over-Privilege:** Unscoped administrative trust policies and dormant service accounts lacking continuous privilege recertification.
+2. **Audit Log Non-Immutability:** Log lake retention does not guarantee tamper-proof Write-Once-Read-Many (WORM) storage required by ${escapeHtml(framework)}.
+3. **Workload Microsegmentation Gap:** Ingress controllers and Kubernetes namespace pods allow lateral East-West traffic without Zero-Trust mutual TLS.
+
+### **3. 30-DAY CRITICAL CONTROLS (PHASE 1: FOUNDATION)**
+- Enforce mandatory FIDO2 hardware MFA across all ${escapeHtml(cloud)} consoles and CLI sessions.
+- Deploy CIS Benchmark Level 2 baselines to all container worker nodes and developer endpoints.
+- Auto-generate cryptographic asset inventory (CMDB) synced with trust platform evidence lockers.`;
+}
+
+const WEB3FORMS_ACCESS_KEY = "a438268e-6344-4d2c-92ca-fd325f01ea6b";
+
+/* ==========================================================================
+   THEME-AWARE EXALTIS SYSTEMS LOGO COMPONENT (LIGHT & DARK MODE VARIANTS)
+   ========================================================================== */
+function ExaltisLogo({ theme = "dark", size = "nav" }) {
+  const isLight = theme === "light";
+  const titleColor = isLight ? "#002150" : "#ffffff";
+  const subtitleColor = isLight ? "#003380" : "#cbd5e1";
+  // Three-tone ascending triangle mark: darkest/base at bottom, brightest tip on top
+  const tipLower = isLight ? "#002150" : "#265894";
+  const tipMid = isLight ? "#265894" : "#4C8FD9";
+  const tipTop = isLight ? "#4C8FD9" : "#ffffff";
+
+  const dims =
+    size === "nav"
+      ? { width: 42, height: 56, titleClass: "text-2xl", subClass: "text-[0.62rem]" }
+      : { width: 34, height: 45, titleClass: "text-xl", subClass: "text-[0.58rem]" };
+
+  return (
+    <span className="inline-flex items-center gap-2.5 select-none">
+      <svg
+        width={dims.width}
+        height={dims.height}
+        viewBox="55 40 90 120"
+        role="img"
+        aria-label={`Exaltis Systems ${isLight ? "Light" : "Dark"} Theme Logo`}
+        style={{ flexShrink: 0, transition: "all 0.25s ease" }}
+      >
+        {/* Ascending triangle mark — each tip stays visible over the one below it */}
+        <polygon points="84,79.0 116,79.0 100,51.3" fill={tipTop} />
+        <polygon points="76,106.6 124,106.6 100,65.0" fill={tipMid} />
+        <polygon points="68,148 132,148 100,92.6" fill={tipLower} />
+      </svg>
+
+      <div className="flex flex-col">
+        <span
+          style={{ color: titleColor }}
+          className={`${dims.titleClass} font-bold tracking-widest group-hover:text-[var(--cyan-accent)] transition-colors leading-none`}
+        >
+          EXALTIS
+        </span>
+        <span
+          style={{ color: subtitleColor }}
+          className={`${dims.subClass} font-bold tracking-[0.2em] mt-1 transition-colors`}
+        >
+          DEFENSE IN DNA
+        </span>
+      </div>
+    </span>
+  );
+}
+
+export default function App() {
+  /* ==========================================================================
+     STATE MANAGEMENT
+     ========================================================================== */
+  const [theme, setTheme] = useState("dark");
+  const [activeServiceTab, setActiveServiceTab] = useState("sec");
+  const [heroThreatCounter, setHeroThreatCounter] = useState(1842);
+
+  // Gemini API Keyring State
+  const [apiKey, setApiKey] = useState("");
+  const [apiKeyInput, setApiKeyInput] = useState("");
+
+  // Threat Intel Engine State
+  const [threatQuery, setThreatQuery] = useState("CVE-2024-3094 XZ Utils Backdoor");
+  const [intelLoading, setIntelLoading] = useState(false);
+  const [intelStatusHeader, setIntelStatusHeader] = useState(
+    "TRIAGE READY // ENTER THREAT VECTOR ABOVE"
+  );
+  const [intelStatusColor, setIntelStatusColor] = useState("text-emerald-400");
+  const [intelTimestamp, setIntelTimestamp] = useState("Live Telemetry");
+  const [intelOutputHtml, setIntelOutputHtml] = useState(null);
+  const [intelUsingOfflineBanner, setIntelUsingOfflineBanner] = useState(false);
+  const [intelErrorNote, setIntelErrorNote] = useState(null);
+  const [intelCitations, setIntelCitations] = useState([]);
+  const [latestReportText, setLatestReportText] = useState("");
+
+  // vCISO Advisor State
+  const [vcisoIndustry, setVcisoIndustry] = useState("Fintech & Digital Banking");
+  const [vcisoFramework, setVcisoFramework] = useState(
+    "SOC 2 Type II (Trust Services Criteria)"
+  );
+  const [vcisoCloud, setVcisoCloud] = useState(
+    "AWS Multi-Account (EKS, RDS, IAM Identity Center)"
+  );
+  const [vcisoPainpoint, setVcisoPainpoint] = useState(
+    "Zero-Trust IAM boundaries and automated SOC 2 continuous evidence logging"
+  );
+  const [vcisoPainpointError, setVcisoPainpointError] = useState(false);
+  const [vcisoLoading, setVcisoLoading] = useState(false);
+  const [vcisoStatusPill, setVcisoStatusPill] = useState("AWAITING PARAMETERS");
+  const [vcisoStatusColor, setVcisoStatusColor] = useState("text-[var(--text-muted)]");
+  const [vcisoOutputHtml, setVcisoOutputHtml] = useState(null);
+  const [vcisoOfflineBanner, setVcisoOfflineBanner] = useState(false);
+  const [vcisoErrorNote, setVcisoErrorNote] = useState(null);
+
+  // Table Top Exercise (TTX) Simulator State
+  const [ttxScore, setTtxScore] = useState(100);
+  const [ttxTitle, setTtxTitle] = useState("INCIDENT WAR-GAME // SIMULATOR READY");
+  const [ttxPhase, setTtxPhase] = useState("idle"); // 'idle' | 'injecting' | 'active' | 'evaluating' | 'completed'
+  const [ttxCommandExecuted, setTtxCommandExecuted] = useState("");
+  const [ttxOutcomeHtml, setTtxOutcomeHtml] = useState("");
+
+  // Modals State
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState("");
+  const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false);
+  const [cadreModalOpen, setCadreModalOpen] = useState(false);
+  const [activeCadreKey, setActiveCadreKey] = useState("arch");
+  const [jobModalOpen, setJobModalOpen] = useState(false);
+  const [activeJobRoleKey, setActiveJobRoleKey] = useState("role1");
+
+  // Main Intake Form State
+  const [intakeName, setIntakeName] = useState("");
+  const [intakeEmail, setIntakeEmail] = useState("");
+  const [intakeSize, setIntakeSize] = useState("");
+  const [intakeFocus, setIntakeFocus] = useState("24/7 Autonomous SOC & MXDR");
+  const [intakeDetails, setIntakeDetails] = useState("");
+  const [intakeAiBlueprint, setIntakeAiBlueprint] = useState(true);
+  const [intakeSubmitting, setIntakeSubmitting] = useState(false);
+  const [intakeErrors, setIntakeErrors] = useState({});
+
+  // RFP Modal Form State
+  const [rfpEmail, setRfpEmail] = useState("");
+  const [rfpScope, setRfpScope] = useState("");
+  const [rfpSubmitting, setRfpSubmitting] = useState(false);
+  const [rfpErrors, setRfpErrors] = useState({});
+
+  // Job Application Form State
+  const [applicantEmail, setApplicantEmail] = useState("");
+  const [applicantSubmitting, setApplicantSubmitting] = useState(false);
+  const [jobErrors, setJobErrors] = useState({});
+  const applicantFileRef = useRef(null);
+
+  // Toast Notifications State
+  const [toastMsg, setToastMsg] = useState(null);
+  const [jobToastMsg, setJobToastMsg] = useState(null);
+  const toastTimerRef = useRef(null);
+  const jobToastTimerRef = useRef(null);
+
+  // Three.js Refs
+  const canvasRef = useRef(null);
+  const threeMaterialsRef = useRef({
+    shieldMat: null,
+    outerMat: null,
+    pMat: null,
+  });
+
+  // Form Field Refs for focus on error
+  const intakeNameRef = useRef(null);
+  const intakeEmailRef = useRef(null);
+  const intakeSizeRef = useRef(null);
+  const intakeDetailsRef = useRef(null);
+  const rfpEmailRef = useRef(null);
+  const rfpScopeRef = useRef(null);
+  const applicantEmailRef = useRef(null);
+  const vcisoPainpointRef = useRef(null);
+
+  /* ==========================================================================
+     TOAST HELPERS
+     ========================================================================== */
+  const showToast = (message) => {
+    setToastMsg(message);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => {
+      setToastMsg(null);
+    }, 5000);
+  };
+
+  const showJobToast = (message) => {
+    setJobToastMsg(
+      message ||
+        "Your application has been received. Our HR team will review your dossier and revert back if selected."
+    );
+    if (jobToastTimerRef.current) clearTimeout(jobToastTimerRef.current);
+    jobToastTimerRef.current = setTimeout(() => {
+      setJobToastMsg(null);
+    }, 7000);
+  };
+
+  /* ==========================================================================
+     THEME INITIALIZATION, EXTERNAL FONTS/ICONS & API KEY LOAD
+     ========================================================================== */
+  useEffect(() => {
+    // Load Phosphor Icons script if not already loaded
+    if (!document.querySelector('script[src*="@phosphor-icons/web"]')) {
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/@phosphor-icons/web@2.1.1";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+
+    // Theme initialization
+    try {
+      const hour = new Date().getHours();
+      const autoTheme = hour >= 6 && hour < 18 ? "light" : "dark";
+      const sessionOverride = sessionStorage.getItem("exaltis_theme_override");
+      const activeTheme = sessionOverride || autoTheme;
+      setTheme(activeTheme);
+      document.documentElement.setAttribute("data-theme", activeTheme);
+    } catch (e) {
+      setTheme("dark");
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+
+    // Load stored API key
+    try {
+      const storedKey =
+        localStorage.getItem("exaltis_gemini_api_key") ||
+        localStorage.getItem("raxa_gemini_api_key") ||
+        "";
+      setApiKey(storedKey);
+      setApiKeyInput(storedKey);
+    } catch (e) {
+      // ignore storage errors
+    }
+
+    // Set page title
+    document.title =
+      "Exaltis Systems | Engineered for Deeper Digital Defense | exaltissystems.com";
+  }, []);
+
+  // Sync theme with documentElement & Three.js materials
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    const { shieldMat, outerMat, pMat } = threeMaterialsRef.current;
+    if (theme === "dark") {
+      if (shieldMat) shieldMat.color.setHex(0x2563eb);
+      if (outerMat) outerMat.color.setHex(0x1d4ed8);
+      if (pMat) pMat.color.setHex(0x38bdf8);
+    } else {
+      if (shieldMat) shieldMat.color.setHex(0x1d4ed8);
+      if (outerMat) outerMat.color.setHex(0x2563eb);
+      if (pMat) pMat.color.setHex(0x0284c7);
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    try {
+      sessionStorage.setItem("exaltis_theme_override", next);
+    } catch (e) {
+      // ignore
+    }
+    setTheme(next);
+    showToast(`Theme switched to ${next.toUpperCase()} mode.`);
+  };
+
+  /* ==========================================================================
+     LIVE THREATS NEUTRALIZED COUNTER & ESCAPE KEY LISTENER
+     ========================================================================== */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeroThreatCounter((prev) => prev + Math.floor(Math.random() * 3) + 1);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setContactModalOpen(false);
+        setApiKeyModalOpen(false);
+        setCadreModalOpen(false);
+        setJobModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  /* ==========================================================================
+     THREE.JS 3D HERO GYROSCOPE DEFENSE CORE
+     ========================================================================== */
+  useEffect(() => {
+    const heroCanvas = canvasRef.current;
+    if (!heroCanvas) return;
+
+    const heroScene = new THREE.Scene();
+    const heroCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    heroCamera.position.z = 5.2;
+
+    const heroRenderer = new THREE.WebGLRenderer({
+      canvas: heroCanvas,
+      alpha: true,
+      antialias: true,
+    });
+    heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const resizeAllCanvases = () => {
+      if (heroCanvas && heroCanvas.parentElement) {
+        const box = heroCanvas.parentElement.getBoundingClientRect();
+        heroRenderer.setSize(box.width, box.height);
+        heroCamera.aspect = box.width / box.height;
+        heroCamera.updateProjectionMatrix();
+      }
+    };
+    resizeAllCanvases();
+    window.addEventListener("resize", resizeAllCanvases);
+
+    const shieldGroup = new THREE.Group();
+    heroScene.add(shieldGroup);
+
+    const currentTheme =
+      document.documentElement.getAttribute("data-theme") || "dark";
+
+    // Inner wireframe sphere
+    const shieldGeo = new THREE.IcosahedronGeometry(1.6, 1);
+    const shieldMat = new THREE.MeshBasicMaterial({
+      color: currentTheme === "dark" ? 0x2563eb : 0x1d4ed8,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.35,
+    });
+    const shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+    shieldGroup.add(shieldMesh);
+
+    // Outer wireframe sphere
+    const outerGeo = new THREE.IcosahedronGeometry(2.1, 2);
+    const outerMat = new THREE.MeshBasicMaterial({
+      color: currentTheme === "dark" ? 0x1d4ed8 : 0x2563eb,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.15,
+    });
+    const outerWireMesh = new THREE.Mesh(outerGeo, outerMat);
+    shieldGroup.add(outerWireMesh);
+
+    // Core orbital points
+    const pCount = 220;
+    const pGeo = new THREE.BufferGeometry();
+    const pPos = new Float32Array(pCount * 3);
+
+    for (let i = 0; i < pCount * 3; i += 3) {
+      const rad = 2.4 + Math.random() * 0.4;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(Math.random() * 2 - 1);
+      pPos[i] = rad * Math.sin(phi) * Math.cos(theta);
+      pPos[i + 1] = rad * Math.sin(phi) * Math.sin(theta);
+      pPos[i + 2] = rad * Math.cos(phi);
+    }
+    pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
+
+    const pMat = new THREE.PointsMaterial({
+      color: currentTheme === "dark" ? 0x38bdf8 : 0x0284c7,
+      size: 0.05,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const particlePoints = new THREE.Points(pGeo, pMat);
+    shieldGroup.add(particlePoints);
+
+    threeMaterialsRef.current = { shieldMat, outerMat, pMat };
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+
+    const handleMouseMove = (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+
+    let animFrameId;
+    const animate3D = () => {
+      animFrameId = requestAnimationFrame(animate3D);
+
+      shieldMesh.rotation.y += 0.003;
+      shieldMesh.rotation.x += 0.002;
+      outerWireMesh.rotation.y -= 0.002;
+      outerWireMesh.rotation.z += 0.001;
+      particlePoints.rotation.y += 0.001;
+
+      targetX += (mouseX - targetX) * 0.05;
+      targetY += (mouseY - targetY) * 0.05;
+      shieldGroup.rotation.y = targetX * 0.5;
+      shieldGroup.rotation.x = -targetY * 0.3;
+
+      heroRenderer.render(heroScene, heroCamera);
+    };
+    animate3D();
+
+    return () => {
+      cancelAnimationFrame(animFrameId);
+      window.removeEventListener("resize", resizeAllCanvases);
+      window.removeEventListener("mousemove", handleMouseMove);
+      shieldGeo.dispose();
+      shieldMat.dispose();
+      outerGeo.dispose();
+      outerMat.dispose();
+      pGeo.dispose();
+      pMat.dispose();
+      heroRenderer.dispose();
+    };
+  }, []);
+
+  /* ==========================================================================
+     GEMINI API BACKOFF HELPER & KEYRING HANDLERS
+     ========================================================================== */
+  const fetchGeminiWithBackoff = async (url, payload, maxRetries = 5) => {
+    const delays = [1000, 2000, 4000, 8000, 16000];
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (response.ok) return await response.json();
+        if (response.status === 429 || response.status >= 500) {
+          await new Promise((r) => setTimeout(r, delays[i] || 16000));
+          continue;
+        }
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error?.message || `HTTP ${response.status}`);
+      } catch (err) {
+        if (i === maxRetries - 1) throw err;
+        await new Promise((r) => setTimeout(r, delays[i] || 16000));
+      }
+    }
+  };
+
+  const handleSaveApiKey = (e) => {
+    if (e) e.preventDefault();
+    const keyVal = apiKeyInput.trim();
+    if (keyVal && detectInjectionPayload(keyVal)) {
+      showToast("Security Alert: Keyring parameter contains illegal characters.");
+      return;
+    }
+    setApiKey(keyVal);
+    try {
+      localStorage.setItem("exaltis_gemini_api_key", keyVal);
+    } catch (err) {
+      // ignore
+    }
+    setApiKeyModalOpen(false);
+    showToast(
+      keyVal
+        ? "Gemini API Key activated successfully."
+        : "Switched to Sovereign Fallback mode."
+    );
+  };
+
+  const handleClearApiKey = () => {
+    setApiKey("");
+    setApiKeyInput("");
+    try {
+      localStorage.removeItem("exaltis_gemini_api_key");
+      localStorage.removeItem("raxa_gemini_api_key");
+    } catch (err) {
+      // ignore
+    }
+    setApiKeyModalOpen(false);
+    showToast("API Key cleared. Using Sovereign offline engine.");
+  };
+
+  /* ==========================================================================
+     FEATURE 1: AUTONOMOUS THREAT RADAR & CVE TRIAGE
+     ========================================================================== */
+  const executeThreatQuery = async (customQuery) => {
+    const queryToRun = (
+      typeof customQuery === "string" ? customQuery : threatQuery
+    ).trim();
+    if (!queryToRun) return;
+
+    if (detectInjectionPayload(queryToRun)) {
+      showToast(
+        "Boundary Intercept: Search vector rejected due to illegal command or injection syntax."
+      );
+      return;
+    }
+
+    setIntelLoading(true);
+    setIntelStatusHeader("TRIAGE IN PROGRESS // SEARCH GROUNDING ENGAGED");
+    setIntelStatusColor("text-amber-400");
+    setIntelUsingOfflineBanner(false);
+    setIntelErrorNote(null);
+    setIntelCitations([]);
+
+    if (!apiKey || apiKey.trim().length === 0) {
+      setTimeout(() => {
+        const fallbackText = getSovereignThreatFallback(queryToRun);
+        setLatestReportText(fallbackText);
+        setIntelOutputHtml(formatMarkdownToHTML(fallbackText));
+        setIntelUsingOfflineBanner(true);
+        setIntelStatusHeader("TRIAGE COMPLETE // SOVEREIGN THREAT MODEL");
+        setIntelStatusColor("text-emerald-400");
+        setIntelTimestamp(new Date().toLocaleTimeString() + " UTC");
+        setIntelLoading(false);
+        showToast("Threat telemetry synthesized via Sovereign Engine.");
+      }, 600);
+      return;
+    }
+
+    try {
+      const systemPrompt = `You are Exaltis's Principal Threat Intelligence Architect (Exaltis-Intel Engine). 
+Analyze the requested cybersecurity threat/CVE/actor using real-time information from Google Search.
+Format your output cleanly in markdown with these distinct sections:
+1. **EXECUTIVE THREAT SUMMARY & CVSS/SEVERITY SCORE**
+2. **ACTIVE ATTACK VECTORS & AFFECTED TOPOLOGIES**
+3. **MITRE ATT&CK TECHNIQUES IDENTIFIED**
+4. **EXALTIS ZERO-TRUST CONTAINMENT PLAYBOOK** (Specific actionable steps to isolate, patch, or mitigate in sub-minute SLAs).
+Maintain an elite, authoritative sovereign cyber defense persona. Keep it concise, high-impact, and directly actionable.`;
+
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+      const payload = {
+        contents: [
+          {
+            parts: [
+              {
+                text: `Analyze this cybersecurity vulnerability or threat vector: "${queryToRun}"`,
+              },
+            ],
+          },
+        ],
+        tools: [{ google_search: {} }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+      };
+
+      const result = await fetchGeminiWithBackoff(apiUrl, payload);
+      const candidate = result.candidates?.[0];
+      const text = candidate?.content?.parts?.[0]?.text;
+
+      if (!text)
+        throw new Error("No telemetry returned from threat analysis engine.");
+
+      setLatestReportText(text);
+
+      let sources = [];
+      const groundingMetadata = candidate.groundingMetadata;
+      if (groundingMetadata && groundingMetadata.groundingAttributions) {
+        sources = groundingMetadata.groundingAttributions
+          .map((attr) => ({ uri: attr.web?.uri, title: attr.web?.title }))
+          .filter((s) => s.uri && s.title);
+      }
+
+      setIntelOutputHtml(formatMarkdownToHTML(text));
+      setIntelCitations(sources.slice(0, 5));
+      setIntelStatusHeader("TRIAGE COMPLETE // ATTACK SURFACE SCOPED");
+      setIntelStatusColor("text-emerald-400");
+      setIntelTimestamp(new Date().toLocaleTimeString() + " UTC");
+      showToast("Threat intelligence report synthesized successfully.");
+    } catch (err) {
+      const fallbackText = getSovereignThreatFallback(queryToRun);
+      setLatestReportText(fallbackText);
+      setIntelOutputHtml(formatMarkdownToHTML(fallbackText));
+      setIntelErrorNote(err.message);
+      setIntelStatusHeader("TRIAGE COMPLETE // SOVEREIGN ENGINE ACTIVE");
+      setIntelStatusColor("text-emerald-400");
+      setIntelTimestamp(new Date().toLocaleTimeString() + " UTC");
+    } finally {
+      setIntelLoading(false);
+    }
+  };
+
+  const handleThreatSubmit = (e) => {
+    e.preventDefault();
+    executeThreatQuery(threatQuery);
+  };
+
+  const handleSelectThreatChip = (preset) => {
+    setThreatQuery(preset);
+    executeThreatQuery(preset);
+  };
+
+  const copyThreatReport = () => {
+    if (!latestReportText) {
+      showToast("No report to copy. Run a query first.");
+      return;
+    }
+    const dummy = document.createElement("textarea");
+    dummy.value = latestReportText;
+    document.body.appendChild(dummy);
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+    showToast("Triage report copied to clipboard!");
+  };
+
+  /* ==========================================================================
+     FEATURE 2: AI vCISO POSTURE & GAP ADVISOR
+     ========================================================================== */
+  const generateVCISOAudit = async () => {
+    const painPoint = vcisoPainpoint.trim() || "Zero-trust hardening";
+
+    if (detectInjectionPayload(painPoint)) {
+      setVcisoPainpointError(true);
+      if (vcisoPainpointRef.current) vcisoPainpointRef.current.focus();
+      showToast(
+        "Security Alert: Architecture goal contains unauthorized script or query syntax."
+      );
+      return;
+    }
+
+    setVcisoLoading(true);
+    setVcisoStatusPill("COMPUTING GAP MATRIX...");
+    setVcisoStatusColor("text-[var(--text-muted)]");
+    setVcisoOfflineBanner(false);
+    setVcisoErrorNote(null);
+
+    if (!apiKey || apiKey.trim().length === 0) {
+      setTimeout(() => {
+        const blueprint = getSovereignVCISOFallback(
+          vcisoIndustry,
+          vcisoFramework,
+          vcisoCloud
+        );
+        setVcisoOutputHtml(formatMarkdownToHTML(blueprint));
+        setVcisoOfflineBanner(true);
+        setVcisoStatusPill("AUDIT ROADMAP GENERATED");
+        setVcisoStatusColor("text-emerald-400");
+        setVcisoLoading(false);
+        showToast("vCISO Gap Blueprint synthesized successfully.");
+      }, 700);
+      return;
+    }
+
+    try {
+      const systemPrompt = `You are Exaltis's Chief Information Security Officer (vCISO Engine). 
+Generate a comprehensive, structured gap assessment and compliance readiness roadmap.`;
+
+      const userPrompt = `Industry: ${vcisoIndustry}\nTarget Compliance Framework:${vcisoFramework}\nCloud Topology: ${vcisoCloud}\nKey Security Challenge:${painPoint}`;
+
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+      const payload = {
+        contents: [{ parts: [{ text: userPrompt }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+      };
+
+      const result = await fetchGeminiWithBackoff(apiUrl, payload);
+      const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!text)
+        throw new Error("No audit blueprint received from vCISO engine.");
+
+      setVcisoOutputHtml(formatMarkdownToHTML(text));
+      setVcisoStatusPill("AUDIT ROADMAP GENERATED");
+      setVcisoStatusColor("text-emerald-400");
+      showToast("vCISO Gap Blueprint successfully generated.");
+    } catch (err) {
+      const fallbackBlueprint = getSovereignVCISOFallback(
+        vcisoIndustry,
+        vcisoFramework,
+        vcisoCloud
+      );
+      setVcisoOutputHtml(formatMarkdownToHTML(fallbackBlueprint));
+      setVcisoErrorNote(err.message);
+      setVcisoStatusPill("ROADMAP ACTIVE");
+      setVcisoStatusColor("text-emerald-400");
+    } finally {
+      setVcisoLoading(false);
+    }
+  };
+
+  /* ==========================================================================
+     FEATURE 3: TABLE TOP EXERCISE (TTX) SIMULATOR
+     ========================================================================== */
+  const startNewTTXScenario = () => {
+    setTtxScore(100);
+    setTtxTitle("WAR-GAME // INJECTING THREAT SCENARIO...");
+    setTtxPhase("injecting");
+    setTtxCommandExecuted("");
+    setTtxOutcomeHtml("");
+
+    setTimeout(() => {
+      setTtxTitle("ACTIVE INCIDENT // ENTERPRISE RANSOMWARE EXTORTION");
+      setTtxPhase("active");
+    }, 500);
+  };
+
+  const handleTTXChoice = (choiceLetter, choiceDescription) => {
+    if (choiceLetter === "A") {
+      setTtxScore((prev) => Math.min(100, prev + 5));
+    } else if (choiceLetter === "B") {
+      setTtxScore((prev) => Math.max(0, prev - 15));
+    } else {
+      setTtxScore((prev) => Math.max(0, prev - 40));
+    }
+
+    setTtxCommandExecuted(choiceDescription);
+    setTtxPhase("evaluating");
+
+    setTimeout(() => {
+      let outcome = "";
+      if (choiceLetter === "A") {
+        outcome = `### **1. TACTICAL OUTCOME (EXCELLENT CONTAINMENT)**
+- **Lateral Movement:** Completely halted. SOAR playbook severed lateral RPC conduits before the payload reached the backup vault.
+- **Data Protection:** Database connections were shielded before staging was finalized.
+
+### **2. REGULATORY & LEGAL COMPLIANCE**
+- Mandatory notification windows preserved with clean forensic timeline attestation.
+
+### **3. FINAL VERDICT & RECOMMENDATIONS**
+- **Score Impact:** +5 Points (Resilient Command Decision).
+- **Remediation:** Rotate all CI/CD deployment keys and enforce ephemeral IAM assume-role policies.`;
+      } else if (choiceLetter === "B") {
+        outcome = `### **1. TACTICAL OUTCOME (EXTENDED EXPOSURE)**
+- **Lateral Movement:** The adversary detected monitoring and accelerated data exfiltration of secondary databases.
+- **Forensic Benefit:** Captured memory dump of C2 beacon, but at the cost of broader data leakage.`;
+      } else {
+        outcome = `### **1. TACTICAL OUTCOME (CRITICAL FAILURE)**
+- **Extortion Risk:** Paying the threat actor without verifying sovereign decryptors resulted in corrupted database keys and re-extortion.`;
+      }
+      setTtxOutcomeHtml(formatMarkdownToHTML(outcome));
+      setTtxPhase("completed");
+      showToast("War-game turn evaluated.");
+    }, 500);
+  };
+
+  /* ==========================================================================
+     MODAL TRIGGERS & FORM HANDLERS
+     ========================================================================== */
+  const openModal = (packageName) => {
+    setSelectedPackage(packageName);
+    setRfpErrors({});
+    setContactModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setContactModalOpen(false);
+    setRfpErrors({});
+  };
+
+  const inspectCadre = (cadreId) => {
+    if (!CADRE_DATA[cadreId]) return;
+    setActiveCadreKey(cadreId);
+    setCadreModalOpen(true);
+  };
+
+  const openJobModal = (roleId) => {
+    if (!JOB_ROLES[roleId]) return;
+    setActiveJobRoleKey(roleId);
+    setJobErrors({});
+    setApplicantEmail("");
+    if (applicantFileRef.current) applicantFileRef.current.value = "";
+    setJobModalOpen(true);
+  };
+
+  const closeJobModal = () => {
+    setJobModalOpen(false);
+    setJobErrors({});
+    setApplicantEmail("");
+    if (applicantFileRef.current) applicantFileRef.current.value = "";
+  };
+
+  const handleNameChange = (e) => {
+    setIntakeErrors((prev) => ({ ...prev, name: false }));
+    const clean = e.target.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'-]/g, "");
+    setIntakeName(clean);
+  };
+
+  const validatePdfFile = (fileInput) => {
+    setJobErrors((prev) => ({ ...prev, doc: false }));
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0)
+      return true;
+
+    const file = fileInput.files[0];
+    const fileName = file.name.toLowerCase();
+
+    if (!fileName.endsWith(".pdf")) {
+      fileInput.value = "";
+      setJobErrors((prev) => ({ ...prev, doc: true }));
+      showToast(
+        "Security Rejection: Only official *.pdf documents are accepted."
+      );
+      return false;
+    }
+
+    if (file.type && file.type !== "application/pdf") {
+      fileInput.value = "";
+      setJobErrors((prev) => ({ ...prev, doc: true }));
+      showToast(
+        "Security Rejection: Invalid file type. Must be a valid PDF document."
+      );
+      return false;
+    }
+
+    const maxBytes = 5 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      fileInput.value = "";
+      setJobErrors((prev) => ({ ...prev, doc: true }));
+      showToast(
+        "Security Rejection: File size exceeds the 5MB sovereign limit."
+      );
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleJobApplication = async (e) => {
+    e.preventDefault();
+    const emailVal = applicantEmail.trim();
+    if (!EMAIL_REGEX.test(emailVal) || detectInjectionPayload(emailVal)) {
+      setJobErrors((prev) => ({ ...prev, email: true }));
+      if (applicantEmailRef.current) applicantEmailRef.current.focus();
+      showToast("Please provide a valid, standard corporate email address.");
+      return;
+    }
+
+    const docInput = applicantFileRef.current;
+    if (!validatePdfFile(docInput)) return;
+    if (!docInput || !docInput.files || docInput.files.length === 0) {
+      setJobErrors((prev) => ({ ...prev, doc: true }));
+      if (docInput) docInput.focus();
+      showToast("A resume/dossier in .PDF format is strictly required.");
+      return;
+    }
+
+    setApplicantSubmitting(true);
+    const formData = new FormData(e.target);
+
+    try {
+      await fetch("https://formspree.io/f/xzezezov", {
+        method: "POST",
+        body: formData,
+        headers: { Accept: "application/json" },
+      });
+      showJobToast(
+        "Your application has been received. Our HR team will review your dossier and revert back if selected."
+      );
+      closeJobModal();
+    } catch (err) {
+      showJobToast(
+        "Your application has been received. Our HR team will review your dossier and revert back if selected."
+      );
+      closeJobModal();
+    } finally {
+      setApplicantSubmitting(false);
+    }
+  };
+
+  const handleMainIntakeSubmit = async (e) => {
+    e.preventDefault();
+    const nameVal = intakeName.trim();
+    if (!NAME_REGEX.test(nameVal)) {
+      setIntakeErrors((prev) => ({ ...prev, name: true }));
+      if (intakeNameRef.current) intakeNameRef.current.focus();
+      showToast(
+        "Please provide a valid full name (letters, hyphens, and apostrophes only)."
+      );
+      return;
+    }
+
+    const emailVal = intakeEmail.trim();
+    if (!EMAIL_REGEX.test(emailVal)) {
+      setIntakeErrors((prev) => ({ ...prev, email: true }));
+      if (intakeEmailRef.current) intakeEmailRef.current.focus();
+      showToast("Please provide a valid standard corporate email address.");
+      return;
+    }
+
+    if (!intakeSize) {
+      setIntakeErrors((prev) => ({ ...prev, size: true }));
+      if (intakeSizeRef.current) intakeSizeRef.current.focus();
+      showToast("Please select an infrastructure scope (Company Size).");
+      return;
+    }
+
+    if (
+      detectInjectionPayload(nameVal) ||
+      detectInjectionPayload(emailVal) ||
+      detectInjectionPayload(intakeDetails)
+    ) {
+      setIntakeErrors((prev) => ({ ...prev, details: true }));
+      if (intakeDetailsRef.current) intakeDetailsRef.current.focus();
+      showToast(
+        "Security Alert: Input contained unauthorized SQL or script injection tokens (OWASP A03). Request blocked."
+      );
+      return;
+    }
+
+    setIntakeSubmitting(true);
+    const payload = {
+      name: nameVal,
+      email: emailVal,
+      company_size: intakeSize,
+      defense_focus: intakeFocus,
+      infrastructure_details: intakeDetails,
+      access_key: WEB3FORMS_ACCESS_KEY,
+      subject: `[Exaltis Intake] New Security RFP from ${nameVal || emailVal || "Client"}`,
+      from_name: "Exaltis Sovereign Web Portal",
+    };
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+      if (result.success) {
+        showToast(
+          "Transmission Received: A Principal Security Architect will contact you within 24h."
+        );
+      } else {
+        showToast("Transmission logged locally. We will follow up shortly.");
+      }
+      setIntakeName("");
+      setIntakeEmail("");
+      setIntakeSize("");
+      setIntakeDetails("");
+    } catch (error) {
+      showToast("Transmission logged locally. We will follow up shortly.");
+      setIntakeName("");
+      setIntakeEmail("");
+      setIntakeSize("");
+      setIntakeDetails("");
+    } finally {
+      setIntakeSubmitting(false);
+    }
+  };
+
+  const handleRfpModalSubmit = async (e) => {
+    e.preventDefault();
+    const rfpEmailVal = rfpEmail.trim();
+    if (!EMAIL_REGEX.test(rfpEmailVal)) {
+      setRfpErrors((prev) => ({ ...prev, email: true }));
+      if (rfpEmailRef.current) rfpEmailRef.current.focus();
+      showToast("Please provide a valid standard corporate email address.");
+      return;
+    }
+
+    if (!rfpScope) {
+      setRfpErrors((prev) => ({ ...prev, scope: true }));
+      if (rfpScopeRef.current) rfpScopeRef.current.focus();
+      showToast("Please select an infrastructure scope.");
+      return;
+    }
+
+    if (detectInjectionPayload(rfpEmailVal)) {
+      setRfpErrors((prev) => ({ ...prev, email: true }));
+      if (rfpEmailRef.current) rfpEmailRef.current.focus();
+      showToast("Security Alert: Parameter contains unauthorized syntax.");
+      return;
+    }
+
+    setRfpSubmitting(true);
+    const payload = {
+      selected_package: selectedPackage,
+      work_email: rfpEmailVal,
+      company_scope: rfpScope,
+      access_key: WEB3FORMS_ACCESS_KEY,
+      subject: `[Exaltis Intake] New Security RFP from ${rfpEmailVal || "Client"}`,
+      from_name: "Exaltis Sovereign Web Portal",
+    };
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+      if (result.success) {
+        showToast(
+          "Transmission Received: A Principal Security Architect will contact you within 24h."
+        );
+      } else {
+        showToast("Transmission logged locally. We will follow up shortly.");
+      }
+      setRfpEmail("");
+      setRfpScope("");
+      closeModal();
+    } catch (error) {
+      showToast("Transmission logged locally. We will follow up shortly.");
+      setRfpEmail("");
+      setRfpScope("");
+      closeModal();
+    } finally {
+      setRfpSubmitting(false);
+    }
+  };
+
+  const activeCadre = CADRE_DATA[activeCadreKey] || CADRE_DATA.arch;
+  const activeJobRole = JOB_ROLES[activeJobRoleKey] || JOB_ROLES.role1;
+  const hasLiveKey = Boolean(apiKey && apiKey.trim().length > 0);
+
+  return (
+    <div
+      data-theme={theme}
+      className="min-h-screen bg-[var(--bg-base)] text-[var(--text-main)] overflow-x-hidden antialiased"
+    >
+      {/* Google Fonts & Exact Original CSS Tokens */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossOrigin="anonymous"
+      />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+        rel="stylesheet"
+      />
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css"
+      />
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css"
+      />
+
+      <style>{`
+        /* ==========================================================================
+           1. GLOBAL STRICT UBUNTU TYPOGRAPHY & DESIGN TOKENS
+           ========================================================================== */
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: 'Ubuntu', sans-serif !important;
+          transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        .font-mono-cyber {
+          font-family: 'Ubuntu', sans-serif !important;
+          letter-spacing: 0.04em;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        :root, html[data-theme="dark"], [data-theme="dark"] {
+          --bg-base: #050811;
+          --bg-surface: rgba(9, 14, 28, 0.88);
+          --bg-card: rgba(13, 20, 38, 0.85);
+          --bg-card-hover: rgba(18, 29, 56, 0.95);
+          --border-subtle: rgba(255, 255, 255, 0.08);
+          --border-navy: rgba(59, 130, 246, 0.35);
+          --navy-glow: rgba(37, 99, 235, 0.3);
+          --cyan-glow: rgba(56, 189, 248, 0.22);
+          --navy-primary: #2563eb;
+          --navy-bright: #60a5fa;
+          --cyan-accent: #38bdf8;
+          --navy-deep: #1d4ed8;
+          --text-main: #f8fafc;
+          --text-muted: #94a3b8;
+          --badge-bg: rgba(37, 99, 235, 0.12);
+          --badge-border: rgba(59, 130, 246, 0.3);
+          --badge-text: #93c5fd;
+          --terminal-bg: #03060d;
+          --logo-filter: brightness(0) invert(1);
+
+          --mandatory-bg: rgba(37, 99, 235, 0.08);
+          --mandatory-border: rgba(59, 130, 246, 0.45);
+          --mandatory-badge-bg: rgba(56, 189, 248, 0.14);
+          --mandatory-badge-text: #38bdf8;
+          --input-error-bg: rgba(239, 68, 68, 0.14);
+          --input-error-border: #ef4444;
+        }
+
+        html[data-theme="light"], [data-theme="light"] {
+          --bg-base: #f4f7fb;
+          --bg-surface: rgba(255, 255, 255, 0.92);
+          --bg-card: #ffffff;
+          --bg-card-hover: #f8fafc;
+          --border-subtle: rgba(15, 23, 42, 0.08);
+          --border-navy: rgba(30, 64, 175, 0.22);
+          --navy-glow: rgba(30, 64, 175, 0.12);
+          --cyan-glow: rgba(2, 132, 199, 0.1);
+          --navy-primary: #1d4ed8;
+          --navy-bright: #2563eb;
+          --cyan-accent: #0284c7;
+          --navy-deep: #1e40af;
+          --text-main: #091224;
+          --text-muted: #475569;
+          --badge-bg: rgba(30, 64, 175, 0.06);
+          --badge-border: rgba(30, 64, 175, 0.2);
+          --badge-text: #1e40af;
+          --terminal-bg: #f1f5f9;
+          --logo-filter: none;
+
+          --mandatory-bg: rgba(224, 242, 254, 0.65);
+          --mandatory-border: rgba(2, 132, 199, 0.4);
+          --mandatory-badge-bg: rgba(2, 132, 199, 0.1);
+          --mandatory-badge-text: #0284c7;
+          --input-error-bg: rgba(254, 242, 242, 0.9);
+          --input-error-border: #dc2626;
+        }
+
+        body {
+          background-color: var(--bg-base);
+          color: var(--text-main);
+          line-height: 1.6;
+          overflow-x: hidden;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        /* Radar Icon Vector Mask (For any .ph-radar instances) */
+        .ph-radar::before {
+          content: '' !important;
+          display: inline-block;
+          width: 1em;
+          height: 1em;
+          vertical-align: -0.15em;
+          background-color: currentColor;
+          -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256' fill='currentColor'%3E%3Cpath d='M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48-88a48,48,0,1,1-48-48A48.05,48.05,0,0,1,176,128Zm-48-32a32,32,0,1,0,32,32A32,32,0,0,0,128,96Z'/%3E%3Cpath d='M128,128 L216,128 A88,88 0 0,0 190.2,65.8 Z' opacity='0.7'/%3E%3Ccircle cx='128' cy='128' r='6'/%3E%3C/svg%3E") no-repeat center / contain;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256' fill='currentColor'%3E%3Cpath d='M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48-88a48,48,0,1,1-48-48A48.05,48.05,0,0,1,176,128Zm-48-32a32,32,0,1,0,32,32A32,32,0,0,0,128,96Z'/%3E%3Cpath d='M128,128 L216,128 A88,88 0 0,0 190.2,65.8 Z' opacity='0.7'/%3E%3Ccircle cx='128' cy='128' r='6'/%3E%3C/svg%3E") no-repeat center / contain;
+        }
+
+        .input-mandatory {
+          background-color: var(--mandatory-bg) !important;
+          border-color: var(--mandatory-border) !important;
+        }
+
+        .input-mandatory:focus {
+          border-color: var(--cyan-accent) !important;
+          box-shadow: 0 0 0 2px var(--navy-glow);
+        }
+
+        .input-error {
+          background-color: var(--input-error-bg) !important;
+          border-color: var(--input-error-border) !important;
+          animation: shakeInput 0.3s ease-in-out;
+        }
+
+        @keyframes shakeInput {
+          0%, 100% { transform: translateX(0); }
+          20%, 60% { transform: translateX(-4px); }
+          40%, 80% { transform: translateX(4px); }
+        }
+
+        .field-pill-required {
+          font-size: 0.62rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          padding: 0.12rem 0.45rem;
+          border-radius: 4px;
+          background: var(--mandatory-badge-bg);
+          color: var(--mandatory-badge-text);
+          border: 1px solid var(--mandatory-border);
+          margin-left: 0.35rem;
+          display: inline-block;
+          vertical-align: middle;
+        }
+
+        .ambient-glow-top {
+          position: fixed;
+          top: -15%;
+          right: 5%;
+          width: 70vw;
+          height: 600px;
+          background: radial-gradient(circle, var(--navy-glow) 0%, var(--cyan-glow) 35%, transparent 70%);
+          pointer-events: none;
+          z-index: 1;
+          filter: blur(70px);
+        }
+
+        .ambient-glow-bottom {
+          position: fixed;
+          bottom: -15%;
+          left: -5%;
+          width: 60vw;
+          height: 550px;
+          background: radial-gradient(circle, var(--navy-glow) 0%, transparent 65%);
+          pointer-events: none;
+          z-index: 1;
+          filter: blur(70px);
+        }
+
+        .custom-container {
+          max-width: 1320px;
+          margin: 0 auto;
+          padding: 0 2rem;
+          position: relative;
+          z-index: 3;
+        }
+
+        .cyber-card {
+          background: var(--bg-card);
+          border: 1px solid var(--border-subtle);
+          border-radius: 16px;
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .cyber-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, var(--cyan-accent), var(--navy-primary), transparent);
+          opacity: 0;
+          transition: opacity 0.35s ease;
+        }
+
+        .cyber-card:hover {
+          border-color: var(--border-navy);
+          transform: translateY(-3px);
+          box-shadow: 0 16px 36px var(--navy-glow);
+        }
+
+        .cyber-card:hover::before {
+          opacity: 1;
+        }
+
+        .icon-badge {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          background: var(--badge-bg);
+          border: 1px solid var(--badge-border);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--cyan-accent);
+          flex-shrink: 0;
+          box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.1);
+        }
+
+        .tab-btn {
+          padding: 0.65rem 1.4rem;
+          border-radius: 9999px;
+          font-size: 0.85rem;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          border: 1px solid var(--border-subtle);
+          background: var(--bg-card);
+          color: var(--text-muted);
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+          background: var(--navy-primary);
+          border-color: var(--cyan-accent);
+          color: #ffffff;
+          box-shadow: 0 4px 16px var(--navy-glow);
+        }
+
+        .tag-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          font-size: 0.72rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          padding: 0.35rem 0.85rem;
+          border-radius: 9999px;
+          background: var(--badge-bg);
+          border: 1px solid var(--badge-border);
+          color: var(--badge-text);
+        }
+
+        .modal-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(4, 8, 16, 0.88);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          display: none;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 1.5rem;
+        }
+
+        .modal-backdrop.active {
+          display: flex;
+        }
+
+        .section-eyebrow {
+          font-size: 0.75rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.14em;
+          color: var(--cyan-accent);
+          margin-bottom: 0.5rem;
+        }
+
+        .section-heading {
+          font-size: clamp(2rem, 3.5vw, 2.75rem);
+          font-weight: 700;
+          letter-spacing: -0.03em;
+          line-height: 1.15;
+          margin-bottom: 0.9rem;
+        }
+
+        .section-desc {
+          font-size: 1.05rem;
+          color: var(--text-muted);
+          max-width: 760px;
+          margin: 0 auto;
+          line-height: 1.65;
+        }
+
+        .pulse-dot {
+          animation: pulseAnimation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulseAnimation {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: .4; transform: scale(0.85); }
+        }
+
+        .marquee-container {
+          position: relative;
+          width: 100%;
+          overflow: hidden;
+          mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+          -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+          padding: 0.6rem 0;
+        }
+
+        .marquee-track {
+          display: flex;
+          width: max-content;
+          gap: 1.1rem;
+        }
+
+        .marquee-forward {
+          animation: marqueeScrollForward 42s linear infinite;
+        }
+
+        .marquee-reverse {
+          animation: marqueeScrollReverse 44s linear infinite;
+        }
+
+        .marquee-container:hover .marquee-track {
+          animation-play-state: paused;
+        }
+
+        @keyframes marqueeScrollForward {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+
+        @keyframes marqueeScrollReverse {
+          0% { transform: translateX(-50%); }
+          100% { transform: translateX(0); }
+        }
+
+        .partner-logo-tile {
+          height: 54px;
+          min-width: 180px;
+          padding: 0 1.6rem;
+          border-radius: 12px;
+          background: var(--bg-card);
+          border: 1px solid var(--border-subtle);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.9rem;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          color: var(--text-main);
+          white-space: nowrap;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          cursor: default;
+          user-select: none;
+        }
+
+        .partner-logo-tile:hover {
+          border-color: var(--cyan-accent);
+          color: var(--cyan-accent);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px var(--navy-glow);
+        }
+
+        ::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+          background: var(--border-navy);
+          border-radius: 4px;
+        }
+      `}</style>
+
+      {/* Ambient background glow layers */}
+      <div className="ambient-glow-top"></div>
+      <div className="ambient-glow-bottom"></div>
+
+      {/* Navigation Bar */}
+      <nav className="fixed top-0 left-0 right-0 h-20 bg-[var(--bg-surface)] backdrop-blur-xl border-b border-[var(--border-subtle)] z-50">
+        <div className="custom-container h-full flex items-center justify-between">
+          {/* Dynamic Light/Dark Theme Brand Mark + Wordmark: EXALTIS */}
+          <a
+            href="https://exaltissystems.com"
+            className="flex items-center text-decoration-none group"
+          >
+            <ExaltisLogo theme={theme} size="nav" />
+          </a>
+
+          {/* Navigation Links */}
+          <ul className="hidden lg:flex items-center gap-7 text-[0.875rem] font-medium text-[var(--text-muted)]">
+            <li>
+              <a
+                href="#services"
+                onClick={() => setActiveServiceTab("sec")}
+                className="hover:text-[var(--cyan-accent)] transition-colors"
+              >
+                Solutions
+              </a>
+            </li>
+            <li>
+              <a
+                href="#ai-intel-engine"
+                className="hover:text-[var(--cyan-accent)] transition-colors flex items-center gap-1.5 text-[var(--cyan-accent)] font-semibold"
+              >
+                <i className="ph-fill ph-radar text-base"></i> AI Threat Radar
+              </a>
+            </li>
+            <li>
+              <a
+                href="#vciso-advisor"
+                className="hover:text-[var(--cyan-accent)] transition-colors"
+              >
+                AI vCISO
+              </a>
+            </li>
+            <li>
+              <a
+                href="#about"
+                className="hover:text-[var(--cyan-accent)] transition-colors"
+              >
+                Cadre &amp; Governance
+              </a>
+            </li>
+            <li>
+              <a
+                href="#industries"
+                className="hover:text-[var(--cyan-accent)] transition-colors"
+              >
+                Sectors
+              </a>
+            </li>
+            <li>
+              <a
+                href="#partners"
+                className="hover:text-[var(--cyan-accent)] transition-colors"
+              >
+                Ecosystem
+              </a>
+            </li>
+          </ul>
+
+          {/* Header Action Items: Phosphor Fill Theme Toggle + Briefing CTA */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              id="theme-toggle-btn"
+              className="w-9 h-9 rounded-full border border-[var(--border-navy)] bg-[var(--bg-card)] text-[var(--text-main)] hover:shadow-[0_0_14px_var(--navy-glow)] flex items-center justify-center cursor-pointer transition-all"
+            >
+              <i
+                id="theme-icon"
+                className={
+                  theme === "dark"
+                    ? "ph-fill ph-moon text-base"
+                    : "ph-fill ph-sun text-base text-amber-500"
+                }
+              ></i>
+            </button>
+
+            <button
+              onClick={() => openModal("General Architecture Briefing")}
+              className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] shadow-[0_4px_16px_var(--navy-glow)] hover:-translate-y-0.5 transition-all cursor-pointer"
+            >
+              Schedule Briefing
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section with Rotating 3D WebGL Wireframe Cyber-Sphere */}
+      <section className="min-h-screen pt-36 pb-20 flex items-center relative">
+        <div className="custom-container w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Hero Narrative */}
+            <div className="lg:col-span-7">
+              <div className="tagline-pill tag-pill mb-6">
+                <i className="ph-fill ph-shield-checkered text-xs text-[var(--cyan-accent)]"></i>
+                <span>EXALTIS SYSTEMS // SOVEREIGN CYBER ARCHITECTURE</span>
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.12] mb-6">
+                Engineered for{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--cyan-accent)] via-[var(--navy-bright)] to-[var(--navy-primary)]">
+                  Deeper Digital Defense
+                </span>
+                .
+              </h1>
+
+              <p className="text-lg text-[var(--text-muted)] leading-relaxed mb-8 max-w-2xl">
+                We replace fragile surface patches with foundational resilience.
+                Unifying 24/7 Autonomous SOC operations, proactive threat
+                hunting, full-lifecycle IT engineering, and rigorous compliance
+                governance directly into your infrastructure bedrock.
+              </p>
+
+              <div className="flex flex-wrap gap-4 mb-12">
+                <a
+                  href="#ai-intel-engine"
+                  className="px-7 py-3.5 rounded-lg text-sm font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] shadow-[0_6px_24px_var(--navy-glow)] hover:-translate-y-0.5 transition-all text-decoration-none inline-flex items-center gap-2"
+                >
+                  <i className="ph-fill ph-radar text-base"></i>
+                  <span>Launch AI Threat Radar</span>
+                  <i className="ph-bold ph-arrow-right text-xs ml-1"></i>
+                </a>
+                <a
+                  href="#vciso-advisor"
+                  className="px-7 py-3.5 rounded-lg text-sm font-bold text-[var(--text-main)] bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--border-navy)] hover:bg-[var(--bg-card-hover)] transition-all text-decoration-none inline-flex items-center gap-2"
+                >
+                  <i className="ph-fill ph-file-text text-base text-[var(--cyan-accent)]"></i>
+                  <span>Generate AI vCISO Audit</span>
+                </a>
+              </div>
+
+              {/* Live Metrics Strip */}
+              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-[var(--border-subtle)]">
+                <div>
+                  <div className="text-2xl lg:text-3xl font-bold text-[var(--cyan-accent)] font-mono-cyber">
+                    &lt; 15 Min
+                  </div>
+                  <div className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mt-1 flex items-center gap-1.5">
+                    <i className="ph-fill ph-timer text-[var(--cyan-accent)]"></i>{" "}
+                    P1 Containment SLA
+                  </div>
+                </div>
+                <div>
+                  <div className="text-2xl lg:text-3xl font-bold text-[var(--text-main)] font-mono-cyber">
+                    100%
+                  </div>
+                  <div className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mt-1 flex items-center gap-1.5">
+                    <i className="ph-fill ph-lock-key text-emerald-400"></i>{" "}
+                    In-Region Residency
+                  </div>
+                </div>
+                <div>
+                  <div className="text-2xl lg:text-3xl font-bold text-emerald-400 font-mono-cyber">
+                    24/7/365
+                  </div>
+                  <div className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mt-1 flex items-center gap-1.5">
+                    <i className="ph-fill ph-radar text-emerald-400"></i>{" "}
+                    Principal Watch Floor
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right 3D Defense Gyroscope Core Visualizer */}
+            <div className="lg:col-span-5 h-[480px] relative flex items-center justify-center">
+              <canvas
+                ref={canvasRef}
+                id="webgl-canvas"
+                className="w-full h-full rounded-2xl"
+              ></canvas>
+
+              {/* Floating Glass HUD Badges */}
+              <div className="absolute top-6 -left-4 bg-[var(--bg-surface)] border border-[var(--border-navy)] backdrop-blur-xl rounded-xl p-4 shadow-2xl z-10 w-56">
+                <div className="text-[0.65rem] uppercase font-bold tracking-wider text-[var(--text-muted)]">
+                  Autonomous Triage
+                </div>
+                <div className="text-lg font-bold text-[var(--text-main)] mt-0.5">
+                  Sub-Minute Eviction
+                </div>
+                <div className="text-xs font-medium text-[var(--cyan-accent)] mt-1 flex items-center gap-1.5">
+                  <i className="ph-fill ph-lightning text-xs text-[var(--cyan-accent)]"></i>{" "}
+                  Zero-Trust Containment
+                </div>
+              </div>
+
+              <div className="absolute bottom-6 -right-4 bg-[var(--bg-surface)] border border-[var(--border-navy)] backdrop-blur-xl rounded-xl p-4 shadow-2xl z-10 w-60">
+                <div className="text-[0.65rem] uppercase font-bold tracking-wider text-[var(--text-muted)]">
+                  Threats Neutralized Today
+                </div>
+                <div
+                  className="text-2xl font-bold text-[var(--text-main)] mt-0.5"
+                  id="hero-threat-counter"
+                >
+                  {heroThreatCounter.toLocaleString()}
+                </div>
+                <div className="text-xs font-medium text-[var(--navy-bright)] mt-1 flex items-center gap-1.5">
+                  <i className="ph-fill ph-check-circle text-sm text-emerald-400"></i>{" "}
+                  Native Exaltis Attestation
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature 1: Autonomous AI Threat Intel Radar */}
+      <section
+        id="ai-intel-engine"
+        className="py-24 bg-[var(--bg-surface)] border-y border-[var(--border-subtle)] relative"
+      >
+        <div className="custom-container">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
+            <div>
+              <div className="section-eyebrow flex items-center gap-2">
+                <i className="ph-fill ph-radar text-base text-[var(--cyan-accent)]"></i>
+                GEMINI-POWERED SOVEREIGN INTEL // REAL-TIME SEARCH GROUNDING
+              </div>
+              <h2 className="text-3xl lg:text-4xl font-bold">
+                Autonomous Threat Radar &amp; CVE Triage
+              </h2>
+              <p className="text-sm text-[var(--text-muted)] mt-2 max-w-2xl">
+                Live real-world vulnerability triage powered by Gemini with
+                Google Search grounding. Queries up-to-date threat feeds, MITRE
+                techniques, affected systems, and generates instant zero-trust
+                containment playbooks.
+              </p>
+            </div>
+            <div className="mt-4 md:mt-0 flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setApiKeyInput(apiKey);
+                  setApiKeyModalOpen(true);
+                }}
+                className="tag-pill text-[0.68rem] hover:border-[var(--cyan-accent)] cursor-pointer"
+              >
+                <span
+                  className="text-[var(--cyan-accent)]"
+                  id="intel-model-badge"
+                >
+                  {hasLiveKey
+                    ? "● Engine: Live Grounded AI"
+                    : "● Engine: Sovereign Core (Set Key)"}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Threat Search Console */}
+          <div className="cyber-card p-6 lg:p-8 mb-8">
+            <form
+              onSubmit={handleThreatSubmit}
+              className="flex flex-col md:flex-row gap-3"
+            >
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)]">
+                  <i className="ph-fill ph-magnifying-glass text-base"></i>
+                </div>
+                <input
+                  type="text"
+                  id="threat-query-input"
+                  maxLength={120}
+                  placeholder="Enter CVE ID, threat actor, or malware family (e.g., CVE-2024-3094, Salt Typhoon, LockBit 3.0)..."
+                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm font-mono-cyber outline-none"
+                  value={threatQuery}
+                  onChange={(e) => setThreatQuery(e.target.value)}
+                />
+              </div>
+              <button
+                type="submit"
+                id="threat-submit-btn"
+                disabled={intelLoading}
+                className="px-6 py-3 rounded-xl text-xs font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] shadow-[0_4px_16px_var(--navy-glow)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {intelLoading ? (
+                  <>
+                    <svg
+                      className="animate-spin h-4 w-4 text-white"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      ></path>
+                    </svg>
+                    <span>Querying Live Threat Feeds...</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="ph-fill ph-lightning text-sm"></i>
+                    <span>Execute Grounded Triage</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Quick Query Preset Chips */}
+            <div className="flex flex-wrap items-center gap-2 mt-4 text-xs">
+              <span className="text-[var(--text-muted)] font-bold">
+                Preset Vectors:
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  handleSelectThreatChip("CVE-2024-3094 XZ Utils Backdoor")
+                }
+                className="px-2.5 py-1 rounded-md bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--cyan-accent)] text-[var(--cyan-accent)] cursor-pointer"
+              >
+                XZ Backdoor (CVE-2024-3094)
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  handleSelectThreatChip(
+                    "Salt Typhoon nation-state telecommunication infrastructure"
+                  )
+                }
+                className="px-2.5 py-1 rounded-md bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--cyan-accent)] text-[var(--cyan-accent)] cursor-pointer"
+              >
+                Salt Typhoon Espionage
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  handleSelectThreatChip(
+                    "LockBit 3.0 Ransomware cloud exfiltration TTPs"
+                  )
+                }
+                className="px-2.5 py-1 rounded-md bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--cyan-accent)] text-[var(--cyan-accent)] cursor-pointer"
+              >
+                LockBit 3.0 Ransomware
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  handleSelectThreatChip(
+                    "Ivanti Connect Secure Zero-Day CVE-2024-21887"
+                  )
+                }
+                className="px-2.5 py-1 rounded-md bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--cyan-accent)] text-[var(--cyan-accent)] cursor-pointer"
+              >
+                Ivanti VPN Zero-Day
+              </button>
+            </div>
+          </div>
+
+          {/* Triage Output Display Panel */}
+          <div className="cyber-card p-6 lg:p-8" id="intel-output-card">
+            <div className="flex flex-wrap items-center justify-between pb-4 mb-6 border-b border-[var(--border-subtle)] gap-4">
+              <div className="flex items-center gap-3">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span
+                  className={`text-xs font-bold font-mono-cyber uppercase ${intelStatusColor}`}
+                  id="intel-status-header"
+                >
+                  {intelStatusHeader}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-xs font-mono-cyber text-[var(--text-muted)]">
+                <span id="intel-timestamp">{intelTimestamp}</span>
+                <button
+                  type="button"
+                  onClick={copyThreatReport}
+                  className="px-3 py-1 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--cyan-accent)] text-[var(--text-main)] cursor-pointer flex items-center gap-1.5"
+                >
+                  <i className="ph-fill ph-copy text-xs"></i> Copy Report
+                </button>
+              </div>
+            </div>
+
+            <div id="intel-output-body" className="space-y-4">
+              {intelLoading ? (
+                <div className="p-4 rounded-xl bg-[var(--terminal-bg)] border border-amber-500/30 font-mono-cyber text-xs text-amber-300 space-y-2 animate-pulse">
+                  <div>
+                    [&gt;] Connecting to Exaltis Global Threat Radar &amp;
+                    Google Grounding...
+                  </div>
+                  <div>
+                    [&gt;] Ingesting CVE telemetry, active in-the-wild
+                    exploitation vectors, and MITRE mapping for: &quot;
+                    {threatQuery}&quot;...
+                  </div>
+                </div>
+              ) : intelOutputHtml ? (
+                <div>
+                  <div
+                    dangerouslySetInnerHTML={{ __html: intelOutputHtml }}
+                  />
+                  {intelUsingOfflineBanner && (
+                    <div className="mt-4 p-3 rounded-lg bg-[var(--bg-card)] border border-[var(--border-navy)] text-xs text-[var(--cyan-accent)] flex items-center justify-between">
+                      <span>
+                        ⚡ Synthesized via Exaltis Sovereign Offline Threat
+                        Intelligence Engine.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setApiKeyInput(apiKey);
+                          setApiKeyModalOpen(true);
+                        }}
+                        className="px-2.5 py-1 rounded bg-[var(--navy-primary)] text-white text-[0.7rem] font-bold hover:bg-[var(--navy-deep)] cursor-pointer"
+                      >
+                        Connect Gemini Key
+                      </button>
+                    </div>
+                  )}
+                  {intelErrorNote && (
+                    <div className="mt-4 p-3 rounded-lg bg-amber-950/20 border border-amber-500/40 text-xs text-amber-300 flex items-center justify-between">
+                      <span>
+                        Note: Using Sovereign Fallback ({intelErrorNote}).
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setApiKeyInput(apiKey);
+                          setApiKeyModalOpen(true);
+                        }}
+                        className="px-2.5 py-1 rounded bg-[var(--navy-primary)] text-white text-[0.7rem] font-bold hover:bg-[var(--navy-deep)] cursor-pointer"
+                      >
+                        Update API Key
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="p-6 rounded-xl bg-[var(--terminal-bg)] border border-[var(--border-subtle)] font-mono-cyber text-xs text-[var(--text-muted)] leading-relaxed">
+                  Click <strong>&quot;Execute Grounded Triage&quot;</strong> to
+                  synthesize active MITRE ATT&amp;CK mappings, CVSS blast
+                  radiuses, and zero-trust containment playbooks.
+                </div>
+              )}
+            </div>
+
+            {intelCitations.length > 0 && (
+              <div
+                id="intel-citations-container"
+                className="mt-6 pt-4 border-t border-[var(--border-subtle)]"
+              >
+                <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                  Grounded Search Sources:
+                </div>
+                <div
+                  id="intel-citations-list"
+                  className="flex flex-wrap gap-2 text-xs"
+                >
+                  {intelCitations.map((s, idx) => (
+                    <a
+                      key={idx}
+                      href={s.uri}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--cyan-accent)] text-[var(--cyan-accent)] hover:underline truncate max-w-[280px]"
+                    >
+                      {s.title}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Feature 2: AI vCISO Posture & Compliance Gap Advisor */}
+      <section id="vciso-advisor" className="py-24 relative">
+        <div className="custom-container">
+          <div className="text-center mb-14">
+            <div className="section-eyebrow">Autonomous Governance Engine</div>
+            <h2 className="section-heading">
+              AI vCISO Posture &amp; Gap Advisor
+            </h2>
+            <p className="section-desc">
+              Generate an instant, structured compliance gap matrix and a
+              30-60-90 day sovereign engineering roadmap tailored to your cloud
+              topology and regulatory mandates.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left: Intake Parameters */}
+            <div className="lg:col-span-5">
+              <div className="cyber-card p-6 lg:p-8 space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+                  <h3 className="text-base font-bold text-[var(--text-main)]">
+                    Infrastructure Profile
+                  </h3>
+                  <span className="tag-pill text-[0.65rem]">AI GAP MODEL</span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-muted)] mb-1.5">
+                    Sector / Vertical
+                  </label>
+                  <select
+                    id="vciso-industry"
+                    value={vcisoIndustry}
+                    onChange={(e) => setVcisoIndustry(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs font-medium outline-none focus:border-[var(--cyan-accent)]"
+                  >
+                    <option value="Fintech & Digital Banking">
+                      Fintech &amp; Digital Banking (PCI-DSS 4.0 / SOC 2)
+                    </option>
+                    <option value="Healthtech & Medical Systems">
+                      Healthtech &amp; Medical Systems (HIPAA / HITECH)
+                    </option>
+                    <option value="EdTech & Higher Education">
+                      EdTech &amp; Higher Education (FERPA / Student Data
+                      Privacy)
+                    </option>
+                    <option value="High-Growth B2B SaaS Platform">
+                      High-Growth B2B SaaS (SOC 2 Type II / ISO 27001)
+                    </option>
+                    <option value="Critical Infrastructure & Energy">
+                      Critical Infrastructure &amp; Energy (NERC CIP / NIST CSF)
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-muted)] mb-1.5">
+                    Target Compliance Framework
+                  </label>
+                  <select
+                    id="vciso-framework"
+                    value={vcisoFramework}
+                    onChange={(e) => setVcisoFramework(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs font-medium outline-none focus:border-[var(--cyan-accent)]"
+                  >
+                    <option value="SOC 2 Type II (Trust Services Criteria)">
+                      SOC 2 Type II (Security, Availability, Confidentiality)
+                    </option>
+                    <option value="ISO/IEC 27001:2022 ISMS">
+                      ISO/IEC 27001:2022 ISMS
+                    </option>
+                    <option value="FERPA / Student Privacy Standards">
+                      FERPA &amp; Student Data Protection Baseline
+                    </option>
+                    <option value="HIPAA Security & Privacy Rule">
+                      HIPAA Security &amp; Privacy Rule
+                    </option>
+                    <option value="NIST Cybersecurity Framework (CSF 2.0)">
+                      NIST Cybersecurity Framework (CSF 2.0)
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-muted)] mb-1.5">
+                    Cloud Topology
+                  </label>
+                  <select
+                    id="vciso-cloud"
+                    value={vcisoCloud}
+                    onChange={(e) => setVcisoCloud(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs font-medium outline-none focus:border-[var(--cyan-accent)]"
+                  >
+                    <option value="AWS Multi-Account (EKS, RDS, IAM Identity Center)">
+                      AWS Multi-Account (EKS, RDS, IAM Identity Center)
+                    </option>
+                    <option value="Microsoft Azure Hybrid (Entra ID, AKS, Blob Storage)">
+                      Microsoft Azure Hybrid (Entra ID, AKS, Blob Storage)
+                    </option>
+                    <option value="Google Cloud Platform (GKE, Cloud SQL, Workload Identity)">
+                      Google Cloud Platform (GKE, Cloud SQL, Workload Identity)
+                    </option>
+                    <option value="Hybrid Multi-Cloud + On-Premises Active Directory">
+                      Hybrid Multi-Cloud + On-Premises Active Directory
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-muted)] mb-1.5">
+                    Primary Pain Point or Architecture Goal
+                  </label>
+                  <input
+                    ref={vcisoPainpointRef}
+                    type="text"
+                    id="vciso-painpoint"
+                    maxLength={140}
+                    placeholder="e.g. Zero local admins, automated audit evidence, least-privilege IAM..."
+                    className={`w-full px-3.5 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs outline-none focus:border-[var(--cyan-accent)] ${
+                      vcisoPainpointError ? "input-error" : ""
+                    }`}
+                    value={vcisoPainpoint}
+                    onChange={(e) => {
+                      setVcisoPainpointError(false);
+                      setVcisoPainpoint(e.target.value);
+                    }}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={generateVCISOAudit}
+                  id="vciso-generate-btn"
+                  disabled={vcisoLoading}
+                  className="w-full py-3 rounded-lg text-xs font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] shadow-[0_4px_16px_var(--navy-glow)] transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+                >
+                  {vcisoLoading ? (
+                    <>
+                      <svg
+                        className="animate-spin h-4 w-4 text-white"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8H4z"
+                        ></path>
+                      </svg>
+                      <span>Synthesizing Audit Blueprint...</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="ph-fill ph-shield-check text-sm"></i>
+                      <span>Generate Sovereign Audit Plan</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Right: Generated Matrix */}
+            <div className="lg:col-span-7">
+              <div className="cyber-card p-6 lg:p-8 h-full flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between pb-4 mb-4 border-b border-[var(--border-subtle)]">
+                    <span className="text-xs font-bold font-mono-cyber uppercase text-[var(--cyan-accent)]">
+                      vCISO Architectural Analysis
+                    </span>
+                    <span
+                      id="vciso-status-pill"
+                      className={`text-[0.65rem] font-mono-cyber ${vcisoStatusColor}`}
+                    >
+                      {vcisoStatusPill}
+                    </span>
+                  </div>
+
+                  <div
+                    id="vciso-results-view"
+                    className="space-y-4 max-h-[480px] overflow-y-auto pr-2"
+                  >
+                    {vcisoLoading ? (
+                      <div className="space-y-3 font-mono-cyber text-xs text-amber-300 animate-pulse">
+                        <div>
+                          [+] Correlating {vcisoFramework} Trust Services
+                          Criteria with {vcisoCloud}...
+                        </div>
+                        <div>
+                          [+] Assessing IAM privilege boundaries, data
+                          isolation, and continuous logging evidence...
+                        </div>
+                        <div>
+                          [+] Formulating 30-60-90 day sovereign mitigation
+                          roadmap...
+                        </div>
+                      </div>
+                    ) : vcisoOutputHtml ? (
+                      <div>
+                        <div
+                          dangerouslySetInnerHTML={{ __html: vcisoOutputHtml }}
+                        />
+                        {vcisoOfflineBanner && (
+                          <div className="mt-4 p-3 rounded-lg bg-[var(--bg-card)] border border-[var(--border-navy)] text-xs text-[var(--cyan-accent)] flex items-center justify-between">
+                            <span>
+                              ⚡ Generated via Exaltis Sovereign vCISO Blueprint
+                              Engine.
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setApiKeyInput(apiKey);
+                                setApiKeyModalOpen(true);
+                              }}
+                              className="px-2.5 py-1 rounded bg-[var(--navy-primary)] text-white text-[0.7rem] font-bold hover:bg-[var(--navy-deep)] cursor-pointer"
+                            >
+                              Configure Gemini Key
+                            </button>
+                          </div>
+                        )}
+                        {vcisoErrorNote && (
+                          <div className="mt-4 p-3 rounded-lg bg-amber-950/20 border border-amber-500/40 text-xs text-amber-300 flex items-center justify-between">
+                            <span>
+                              Note: Generated via Sovereign Core Engine (
+                              {vcisoErrorNote}).
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setApiKeyInput(apiKey);
+                                setApiKeyModalOpen(true);
+                              }}
+                              className="px-2.5 py-1 rounded bg-[var(--navy-primary)] text-white text-[0.7rem] font-bold hover:bg-[var(--navy-deep)] cursor-pointer"
+                            >
+                              Update API Key
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="p-6 rounded-xl bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-xs font-mono-cyber text-[var(--text-muted)] leading-relaxed">
+                        Configure your industry and compliance target on the
+                        left, then click{" "}
+                        <strong>&quot;Generate Sovereign Audit Plan&quot;</strong>{" "}
+                        to formulate a 30/60/90-day execution blueprint.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-6 border-t border-[var(--border-subtle)] flex items-center justify-between">
+                  <span className="text-[0.7rem] text-[var(--text-muted)]">
+                    Includes NIST SP 800-53 &amp; CIS Control mapping
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => openModal("Full vCISO Governance Retainer")}
+                    className="text-xs font-bold text-[var(--navy-bright)] hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Request Dedicated vCISO Briefing</span>
+                    <i className="ph-bold ph-arrow-right text-xs"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature 3: Table Top Exercise Simulator */}
+      <section
+        id="ttx-simulator"
+        className="py-24 bg-[var(--bg-surface)] border-y border-[var(--border-subtle)] relative"
+      >
+        <div className="custom-container">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
+            <div>
+              <div className="section-eyebrow flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 pulse-dot"></span>
+                INTERACTIVE INCIDENT WAR-GAME // COMMAND EXERCISE
+              </div>
+              <h2 className="text-3xl lg:text-4xl font-bold">
+                Cyber Crisis Table Top Simulator
+              </h2>
+              <p className="text-sm text-[var(--text-muted)] mt-2 max-w-2xl">
+                Test your executive response capabilities against active
+                ransomware extortion, cloud tenant takeovers, and lateral
+                privilege escalation.
+              </p>
+            </div>
+            <div className="mt-4 md:mt-0">
+              <button
+                type="button"
+                onClick={startNewTTXScenario}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 shadow-lg transition-all cursor-pointer flex items-center gap-2"
+              >
+                <i className="ph-fill ph-play text-sm"></i>
+                <span>Launch New Incident War-Game</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="cyber-card p-7 lg:p-9" id="ttx-card">
+            <div className="flex items-center justify-between pb-4 mb-6 border-b border-[var(--border-subtle)]">
+              <div className="flex items-center gap-3">
+                <span className="w-3 h-3 rounded-full bg-red-500 pulse-dot"></span>
+                <span
+                  className="text-xs font-bold font-mono-cyber uppercase text-[var(--text-main)]"
+                  id="ttx-scenario-title"
+                >
+                  {ttxTitle}
+                </span>
+              </div>
+              <span
+                className="text-xs font-mono-cyber text-[var(--cyan-accent)]"
+                id="ttx-score-display"
+              >
+                SECURITY SCORE: {ttxScore}/100
+              </span>
+            </div>
+
+            <div id="ttx-scenario-body" className="space-y-6">
+              {ttxPhase === "idle" && (
+                <div className="p-5 rounded-xl bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-sm text-[var(--text-muted)] leading-relaxed">
+                  Click{" "}
+                  <strong>&quot;Launch New Incident War-Game&quot;</strong>{" "}
+                  above to generate a realistic extortion scenario. You will be
+                  prompted with branching tactical decisions involving
+                  ransomware containment, executive comms, and law enforcement
+                  escalation.
+                </div>
+              )}
+
+              {ttxPhase === "injecting" && (
+                <div className="p-4 rounded-xl bg-[var(--terminal-bg)] border border-red-500/30 text-xs font-mono-cyber text-red-300 animate-pulse space-y-1">
+                  <div>
+                    [!] Synthesizing active ransomware extortion / cloud
+                    exfiltration war-game...
+                  </div>
+                  <div>
+                    [!] Initializing adversary timeline and SOC alert
+                    triggers...
+                  </div>
+                </div>
+              )}
+
+              {(ttxPhase === "active" ||
+                ttxPhase === "evaluating" ||
+                ttxPhase === "completed") && (
+                <div>
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: formatMarkdownToHTML(`### **INCIDENT INJECTION: CLOUD WORKLOAD COMPROMISE**
+**Discovery Time:** 02:14:08 UTC // Alert Severity: **P1 CRITICAL**  
+**Blast Radius:** 14 AWS EKS Microservices, Multi-Tenant Postgres RDS, and S3 Backup Vault.  
+**Adversary Vector:** Compromised CI/CD deployment secret token used to inject a persistent WebShell, exfiltrate customer database tables, and deploy ransomware staging scripts.  
+**Extortion Demand:** 45 BTC requested within 24 hours with double-extortion leak site countdown.`),
+                    }}
+                  />
+
+                  {ttxCommandExecuted && (
+                    <div className="mt-4 p-4 rounded-xl bg-[var(--terminal-bg)] border border-[var(--cyan-accent)] font-mono-cyber text-xs text-[var(--cyan-accent)]">
+                      [&gt;] COMMAND EXECUTED: {ttxCommandExecuted}
+                      <br />
+                      [&gt;] Analyzing blast radius outcome...
+                    </div>
+                  )}
+
+                  {ttxOutcomeHtml && (
+                    <div
+                      className="mt-4"
+                      dangerouslySetInnerHTML={{ __html: ttxOutcomeHtml }}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+
+            {ttxPhase === "active" && (
+              <div
+                id="ttx-actions-container"
+                className="mt-6 pt-4 border-t border-[var(--border-subtle)]"
+              >
+                <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3">
+                  Select Your Command Action:
+                </div>
+                <div
+                  id="ttx-choices-grid"
+                  className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleTTXChoice(
+                        "A",
+                        "Auto-Isolate workloads & revoke all active session tokens immediately."
+                      )
+                    }
+                    className="p-3 text-left rounded-xl bg-[var(--terminal-bg)] border border-[var(--border-navy)] hover:border-[var(--cyan-accent)] hover:bg-[var(--bg-card)] text-xs font-mono-cyber text-[var(--text-main)] transition-all cursor-pointer"
+                  >
+                    <span className="text-[var(--cyan-accent)] font-bold">
+                      [ACTION A]
+                    </span>{" "}
+                    Auto-Isolate workloads &amp; revoke all active session
+                    tokens immediately.
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleTTXChoice(
+                        "B",
+                        "Keep clusters online to monitor exfiltration telemetry and capture RAM dumps."
+                      )
+                    }
+                    className="p-3 text-left rounded-xl bg-[var(--terminal-bg)] border border-[var(--border-navy)] hover:border-amber-400 hover:bg-[var(--bg-card)] text-xs font-mono-cyber text-[var(--text-main)] transition-all cursor-pointer"
+                  >
+                    <span className="text-amber-400 font-bold">[ACTION B]</span>{" "}
+                    Keep clusters online to monitor exfiltration telemetry and
+                    capture RAM dumps.
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleTTXChoice(
+                        "C",
+                        "Contact extortion threat actor immediately to negotiate ransom suppression."
+                      )
+                    }
+                    className="p-3 text-left rounded-xl bg-[var(--terminal-bg)] border border-red-500/40 hover:border-red-500 hover:bg-red-950/20 text-xs font-mono-cyber text-red-300 transition-all cursor-pointer"
+                  >
+                    <span className="text-red-400 font-bold">[ACTION C]</span>{" "}
+                    Contact extortion threat actor immediately to negotiate
+                    ransom suppression.
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* About Us Section */}
+      <section
+        id="about"
+        className="py-28 bg-[var(--bg-surface)] border-t border-[var(--border-subtle)] relative"
+      >
+        <div className="custom-container">
+          <div className="text-center mb-16">
+            <div className="section-eyebrow">Enterprise Heritage &amp; Creed</div>
+            <h2 className="section-heading">
+              Security Forged From First Principles
+            </h2>
+            <p className="section-desc">
+              Traditional security reacts to breaches after the perimeter
+              cracks. We engineer resilience into the biological bedrock of your
+              enterprise.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <div className="cyber-card p-7">
+              <div className="icon-badge mb-5">
+                <i className="ph-fill ph-clock-countdown text-2xl"></i>
+              </div>
+              <div className="text-xs font-bold text-[var(--cyan-accent)] uppercase tracking-wider mb-2">
+                Our Origin
+              </div>
+              <h3 className="text-xl font-bold mb-3">The Duty of Vigilance</h3>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+                Rooted in an uncompromising duty to protect, Exaltis Systems
+                elevates superficial security tools to foundational, rigorous
+                sovereign defense.
+              </p>
+            </div>
+
+            <div className="cyber-card p-7">
+              <div className="icon-badge mb-5">
+                <i className="ph-fill ph-dna text-2xl text-[var(--navy-bright)]"></i>
+              </div>
+              <div className="text-xs font-bold text-[var(--navy-bright)] uppercase tracking-wider mb-2">
+                Our Core Belief
+              </div>
+              <h3 className="text-xl font-bold mb-3">Defense in DNA</h3>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+                True digital security cannot be bolted on as an afterthought. It
+                must be written into the topology, identity fabrics, and
+                operational DNA of every workstation and cloud cluster.
+              </p>
+            </div>
+
+            <div className="cyber-card p-7">
+              <div className="icon-badge mb-5">
+                <i className="ph-fill ph-lightning text-2xl text-[var(--cyan-accent)]"></i>
+              </div>
+              <div className="text-xs font-bold text-[var(--cyan-accent)] uppercase tracking-wider mb-2">
+                Our Impact
+              </div>
+              <h3 className="text-xl font-bold mb-3">Deeper Digital Defense</h3>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+                From the edge to the hypervisor, we provide continuous,
+                self-healing telemetry and sub-minute threat eviction that gives
+                executive boards the certainty to innovate fearlessly.
+              </p>
+            </div>
+
+            <div className="cyber-card p-7 border-red-500/30 bg-red-950/10">
+              <div className="icon-badge mb-5 text-red-400 bg-red-500/10 border-red-500/30">
+                <i className="ph-fill ph-prohibit text-2xl"></i>
+              </div>
+              <div className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2">
+                The Difference
+              </div>
+              <h3 className="text-xl font-bold mb-3">Who We Are NOT</h3>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+                We are <strong>NOT</strong> checkbox auditors who pass you off to
+                a ticketing queue. We are <strong>NOT</strong> software
+                resellers pushing shelfware. We are active, hands-on sovereign
+                defenders and architects.
+              </p>
+            </div>
+          </div>
+
+          {/* Mission Statement Banner */}
+          <div className="cyber-card p-8 lg:p-12 mb-16 bg-gradient-to-r from-[var(--bg-card)] via-[var(--bg-card-hover)] to-[var(--bg-card)] border-[var(--border-navy)]">
+            <div className="max-w-4xl mx-auto text-center">
+              <span className="tag-pill mb-4">OUR SOVEREIGN MISSION</span>
+              <h3 className="text-2xl sm:text-3xl font-bold tracking-tight leading-snug mb-4">
+                &quot;To engineer unbreachable digital environments for
+                mid-market and high-growth organizations by converging
+                autonomous machine-speed response with veteran tactical human
+                intelligence.&quot;
+              </h3>
+              <div className="flex items-center justify-center gap-3 text-sm font-medium text-[var(--cyan-accent)]">
+                <span>Sovereign Global Operations</span> •{" "}
+                <span>Zero-Trust Assurance</span> •{" "}
+                <span>Tier-3 Principal Operations</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Foundational Values (5 Pillars) */}
+          <div className="mb-20">
+            <div className="text-center mb-10">
+              <h3 className="text-2xl font-bold">Our 5 Foundational Values</h3>
+              <p className="text-sm text-[var(--text-muted)] mt-1">
+                The architectural principles governing every incident triage,
+                line of code, and advisory audit.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5">
+              <div className="cyber-card p-6 text-center">
+                <div className="text-2xl font-bold text-[var(--cyan-accent)] mb-2">
+                  01
+                </div>
+                <h4 className="font-bold text-base mb-2">
+                  Sovereign Integrity
+                </h4>
+                <p className="text-xs text-[var(--text-muted)]">
+                  Uncompromising data isolation, regional sovereignty, and
+                  strict non-custodial telemetry governance.
+                </p>
+              </div>
+              <div className="cyber-card p-6 text-center">
+                <div className="text-2xl font-bold text-[var(--navy-bright)] mb-2">
+                  02
+                </div>
+                <h4 className="font-bold text-base mb-2">
+                  First-Principles Eng
+                </h4>
+                <p className="text-xs text-[var(--text-muted)]">
+                  No temporary band-aids. We analyze attack surfaces at the
+                  kernel, identity, and API topology layers.
+                </p>
+              </div>
+              <div className="cyber-card p-6 text-center">
+                <div className="text-2xl font-bold text-[var(--cyan-accent)] mb-2">
+                  03
+                </div>
+                <h4 className="font-bold text-base mb-2">
+                  Radical Transparency
+                </h4>
+                <p className="text-xs text-[var(--text-muted)]">
+                  Direct access to raw SIEM logs, transparent SLA metrics, and
+                  executive post-mortem accountability.
+                </p>
+              </div>
+              <div className="cyber-card p-6 text-center">
+                <div className="text-2xl font-bold text-[var(--navy-bright)] mb-2">
+                  04
+                </div>
+                <h4 className="font-bold text-base mb-2">Relentless Hunting</h4>
+                <p className="text-xs text-[var(--text-muted)]">
+                  We assume breach 24/7/365, actively stress-testing defenses
+                  before adversaries find gaps.
+                </p>
+              </div>
+              <div className="cyber-card p-6 text-center">
+                <div className="text-2xl font-bold text-[var(--cyan-accent)] mb-2">
+                  05
+                </div>
+                <h4 className="font-bold text-base mb-2">Human-AI Synthesis</h4>
+                <p className="text-xs text-[var(--text-muted)]">
+                  Combining sub-second SOAR playbooks with Tier-3 seasoned
+                  principal security architects.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bento Grid of Directorates */}
+          <div id="cadre-section">
+            <div className="text-center mb-12">
+              <div className="section-eyebrow flex items-center justify-center gap-2">
+                <i className="ph-fill ph-shield-checkered text-xs text-[var(--cyan-accent)]"></i>
+                INSTITUTIONAL DEFENSE GOVERNANCE // OPSEC PROTOCOL
+              </div>
+              <h3 className="text-3xl font-bold">
+                Executive Governance &amp; Command Cadre
+              </h3>
+              <p className="text-sm text-[var(--text-muted)] mt-2 max-w-2xl mx-auto">
+                In accordance with strict Operational Security (OPSEC) standards
+                safeguarding our analysts and client environments, Exaltis
+                Systems operates an institutional leadership model. Governed by
+                verified credentials, contractual SLAs, and deep bench mastery.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {/* Directorate 1 */}
+              <div
+                className="cyber-card p-7 flex flex-col justify-between group cursor-pointer"
+                onClick={() => inspectCadre("arch")}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="icon-badge">
+                      <i className="ph-fill ph-shield-chevron text-2xl text-[var(--cyan-accent)]"></i>
+                    </div>
+                    <span className="font-mono-cyber text-[0.65rem] font-bold text-[var(--cyan-accent)] px-2.5 py-1 rounded bg-[var(--terminal-bg)] border border-[var(--border-subtle)] flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--cyan-accent)]"></span>{" "}
+                      // CADRE: ARCH-01
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-bold text-[var(--text-main)] mb-1 group-hover:text-[var(--cyan-accent)] transition-colors">
+                    Office of the Chief Executive &amp; Principal Architect
+                  </h4>
+                  <div className="text-xs font-bold text-[var(--cyan-accent)] uppercase tracking-wider mb-3">
+                    Strategic Sovereignty &amp; Vision
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-5">
+                    Directs multi-region sovereign posture, zero-trust
+                    cryptographic boundary frameworks, and tier-1 defensive
+                    telemetry strategy for enterprise clients.
+                  </p>
+                  <div className="space-y-1.5 text-xs text-[var(--text-muted)] font-mono-cyber mb-6 bg-[var(--terminal-bg)]/60 p-3 rounded-xl border border-[var(--border-subtle)]">
+                    <div className="flex items-center justify-between">
+                      <span>Bench Depth:</span>{" "}
+                      <span className="text-[var(--text-main)] font-bold">
+                        20+ Years Principal
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Clearance Level:</span>{" "}
+                      <span className="text-[var(--text-main)] font-bold">
+                        Tier-3 Sovereign
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Escalation SLA:</span>{" "}
+                      <span className="text-[var(--cyan-accent)] font-bold">
+                        &lt; 30m Board Advisory
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="pt-4 border-t border-[var(--border-subtle)] flex flex-wrap gap-1.5 mb-3">
+                    <span className="tag-pill text-[0.62rem]">CISSP</span>
+                    <span className="tag-pill text-[0.62rem]">CCSP</span>
+                    <span className="tag-pill text-[0.62rem]">TOGAF 9.2</span>
+                  </div>
+                  <div className="text-[0.7rem] font-bold text-[var(--navy-bright)] flex items-center justify-between group-hover:translate-x-1 transition-transform">
+                    <span>Inspect Charter &amp; Protocols</span>
+                    <i className="ph-bold ph-arrow-right text-xs"></i>
+                  </div>
+                </div>
+              </div>
+
+              {/* Directorate 2 */}
+              <div
+                className="cyber-card p-7 flex flex-col justify-between group cursor-pointer"
+                onClick={() => inspectCadre("gov")}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="icon-badge">
+                      <i className="ph-fill ph-certificate text-2xl text-[var(--navy-bright)]"></i>
+                    </div>
+                    <span className="font-mono-cyber text-[0.65rem] font-bold text-[var(--navy-bright)] px-2.5 py-1 rounded bg-[var(--terminal-bg)] border border-[var(--border-subtle)] flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--navy-bright)]"></span>{" "}
+                      // CADRE: GOV-02
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-bold text-[var(--text-main)] mb-1 group-hover:text-[var(--cyan-accent)] transition-colors">
+                    Directorate of Information Security &amp; vCISO Advisory
+                  </h4>
+                  <div className="text-xs font-bold text-[var(--navy-bright)] uppercase tracking-wider mb-3">
+                    Governance, Risk &amp; Compliance (GRC)
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-5">
+                    Leads turnkey audit readiness, policy orchestration,
+                    third-party risk mitigation, and executive compliance
+                    attestations across rigorous frameworks.
+                  </p>
+                  <div className="space-y-1.5 text-xs text-[var(--text-muted)] font-mono-cyber mb-6 bg-[var(--terminal-bg)]/60 p-3 rounded-xl border border-[var(--border-subtle)]">
+                    <div className="flex items-center justify-between">
+                      <span>Audit Oversight:</span>{" "}
+                      <span className="text-[var(--text-main)] font-bold">
+                        SOC 2 • ISO 27001 • FERPA
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Attestation Track:</span>{" "}
+                      <span className="text-emerald-400 font-bold">
+                        100% Clean Audit Opinions
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Sync Cadence:</span>{" "}
+                      <span className="text-[var(--navy-bright)] font-bold">
+                        Continuous Evidence Flow
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="pt-4 border-t border-[var(--border-subtle)] flex flex-wrap gap-1.5 mb-3">
+                    <span className="tag-pill text-[0.62rem]">CISA</span>
+                    <span className="tag-pill text-[0.62rem]">CRISC</span>
+                    <span className="tag-pill text-[0.62rem]">CISM</span>
+                    <span className="tag-pill text-[0.62rem]">ISO LA</span>
+                  </div>
+                  <div className="text-[0.7rem] font-bold text-[var(--navy-bright)] flex items-center justify-between group-hover:translate-x-1 transition-transform">
+                    <span>Inspect Charter &amp; Protocols</span>
+                    <i className="ph-bold ph-arrow-right text-xs"></i>
+                  </div>
+                </div>
+              </div>
+
+              {/* Directorate 3 */}
+              <div
+                className="cyber-card p-7 flex flex-col justify-between group cursor-pointer"
+                onClick={() => inspectCadre("soc")}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="icon-badge">
+                      <svg
+                        className="w-6 h-6 text-[var(--cyan-accent)] fill-current"
+                        viewBox="0 0 256 256"
+                      >
+                        <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48-88a48,48,0,1,1-48-48A48.05,48.05,0,0,1,176,128Zm-48-32a32,32,0,1,0,32,32A32,32,0,0,0,128,96Z" />
+                        <path
+                          d="M128,128 L216,128 A88,88 0 0,0 190.2,65.8 Z"
+                          opacity="0.6"
+                        />
+                        <circle cx="128" cy="128" r="6" />
+                      </svg>
+                    </div>
+                    <span className="font-mono-cyber text-[0.65rem] font-bold text-[var(--cyan-accent)] px-2.5 py-1 rounded bg-[var(--terminal-bg)] border border-[var(--border-subtle)] flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span>{" "}
+                      // CADRE: SOC-03
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-bold text-[var(--text-main)] mb-1 group-hover:text-[var(--cyan-accent)] transition-colors">
+                    Autonomous SOC &amp; Threat Operations Command
+                  </h4>
+                  <div className="text-xs font-bold text-[var(--cyan-accent)] uppercase tracking-wider mb-3">
+                    24/7 MXDR &amp; Incident Response
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-5">
+                    Commands 24/7/365 active telemetry ingestion, hypothesis
+                    threat hunting, automated SOAR playbooks, and sub-minute
+                    malware eviction cells.
+                  </p>
+                  <div className="space-y-1.5 text-xs text-[var(--text-muted)] font-mono-cyber mb-6 bg-[var(--terminal-bg)]/60 p-3 rounded-xl border border-[var(--border-subtle)]">
+                    <div className="flex items-center justify-between">
+                      <span>Watch Desk:</span>{" "}
+                      <span className="text-[var(--text-main)] font-bold">
+                        24/7/365 Global Enclaves
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>P1 Containment:</span>{" "}
+                      <span className="text-emerald-400 font-bold">
+                        &lt; 15 Min Guaranteed
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Automation Tier:</span>{" "}
+                      <span className="text-[var(--cyan-accent)] font-bold">
+                        SOAR Machine-Speed
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="pt-4 border-t border-[var(--border-subtle)] flex flex-wrap gap-1.5 mb-3">
+                    <span className="tag-pill text-[0.62rem]">GIAC GSE</span>
+                    <span className="tag-pill text-[0.62rem]">GCFA</span>
+                    <span className="tag-pill text-[0.62rem]">GNFA</span>
+                    <span className="tag-pill text-[0.62rem]">GCIH</span>
+                  </div>
+                  <div className="text-[0.7rem] font-bold text-[var(--navy-bright)] flex items-center justify-between group-hover:translate-x-1 transition-transform">
+                    <span>Inspect Charter &amp; Protocols</span>
+                    <i className="ph-bold ph-arrow-right text-xs"></i>
+                  </div>
+                </div>
+              </div>
+
+              {/* Directorate 4 */}
+              <div
+                className="cyber-card p-7 flex flex-col justify-between group cursor-pointer border-red-500/20"
+                onClick={() => inspectCadre("red")}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="icon-badge text-red-400 border-red-500/30 bg-red-500/10">
+                      <i className="ph-fill ph-terminal-window text-2xl"></i>
+                    </div>
+                    <span className="font-mono-cyber text-[0.65rem] font-bold text-red-400 px-2.5 py-1 rounded bg-[var(--terminal-bg)] border border-red-500/30 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>{" "}
+                      // CADRE: RED-04
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-bold text-[var(--text-main)] mb-1 group-hover:text-red-400 transition-colors">
+                    Offensive Security &amp; Red Team Operations Cell
+                  </h4>
+                  <div className="text-xs font-bold text-red-400 uppercase tracking-wider mb-3">
+                    VAPT, Exploitation &amp; Threat Emulation
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-5">
+                    Executes CREST-aligned adversary simulations, zero-day
+                    surface probes, Active Directory domain escalation testing,
+                    and perimeter bypass research.
+                  </p>
+                  <div className="space-y-1.5 text-xs text-[var(--text-muted)] font-mono-cyber mb-6 bg-[var(--terminal-bg)]/60 p-3 rounded-xl border border-[var(--border-subtle)]">
+                    <div className="flex items-center justify-between">
+                      <span>Attack Vector Scope:</span>{" "}
+                      <span className="text-[var(--text-main)] font-bold">
+                        Web • API • AD • Cloud
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Simulation Method:</span>{" "}
+                      <span className="text-[var(--text-main)] font-bold">
+                        MITRE ATT&amp;CK Matrix
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Remediation Fix:</span>{" "}
+                      <span className="text-red-400 font-bold">
+                        Verified Code-Level Proof
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="pt-4 border-t border-[var(--border-subtle)] flex flex-wrap gap-1.5 mb-3">
+                    <span className="tag-pill text-[0.62rem]">OSCP</span>
+                    <span className="tag-pill text-[0.62rem]">GXPN</span>
+                    <span className="tag-pill text-[0.62rem]">CREST CRT</span>
+                    <span className="tag-pill text-[0.62rem]">CRTE</span>
+                  </div>
+                  <div className="text-[0.7rem] font-bold text-red-400 flex items-center justify-between group-hover:translate-x-1 transition-transform">
+                    <span>Inspect Charter &amp; Protocols</span>
+                    <i className="ph-bold ph-arrow-right text-xs"></i>
+                  </div>
+                </div>
+              </div>
+
+              {/* Directorate 5 */}
+              <div
+                className="cyber-card p-7 flex flex-col justify-between group cursor-pointer"
+                onClick={() => inspectCadre("inf")}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="icon-badge">
+                      <i className="ph-fill ph-hard-drives text-2xl text-[var(--navy-bright)]"></i>
+                    </div>
+                    <span className="font-mono-cyber text-[0.65rem] font-bold text-[var(--navy-bright)] px-2.5 py-1 rounded bg-[var(--terminal-bg)] border border-[var(--border-subtle)] flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--navy-bright)]"></span>{" "}
+                      // CADRE: INF-05
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-bold text-[var(--text-main)] mb-1 group-hover:text-[var(--cyan-accent)] transition-colors">
+                    Enterprise Bedrock Systems Engineering
+                  </h4>
+                  <div className="text-xs font-bold text-[var(--navy-bright)] uppercase tracking-wider mb-3">
+                    Cloud Architecture, IAM &amp; EUC
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-5">
+                    Hardened foundation layers: zero-trust Azure Entra ID / AWS
+                    IAM Identity Center fabrics, Intune MDM baselines, and
+                    immutable backup enclaves.
+                  </p>
+                  <div className="space-y-1.5 text-xs text-[var(--text-muted)] font-mono-cyber mb-6 bg-[var(--terminal-bg)]/60 p-3 rounded-xl border border-[var(--border-subtle)]">
+                    <div className="flex items-center justify-between">
+                      <span>Availability SLA:</span>{" "}
+                      <span className="text-[var(--text-main)] font-bold">
+                        99.99% Tier-4 Topology
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Zero-Touch Setup:</span>{" "}
+                      <span className="text-[var(--text-main)] font-bold">
+                        Intune &amp; Apple MDM
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Data Immutability:</span>{" "}
+                      <span className="text-[var(--navy-bright)] font-bold">
+                        Air-Gapped WORM Repos
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="pt-4 border-t border-[var(--border-subtle)] flex flex-wrap gap-1.5 mb-3">
+                    <span className="tag-pill text-[0.62rem]">
+                      AWS Security Pro
+                    </span>
+                    <span className="tag-pill text-[0.62rem]">
+                      Azure Expert
+                    </span>
+                    <span className="tag-pill text-[0.62rem]">ITIL v4</span>
+                  </div>
+                  <div className="text-[0.7rem] font-bold text-[var(--navy-bright)] flex items-center justify-between group-hover:translate-x-1 transition-transform">
+                    <span>Inspect Charter &amp; Protocols</span>
+                    <i className="ph-bold ph-arrow-right text-xs"></i>
+                  </div>
+                </div>
+              </div>
+
+              {/* Directorate 6 */}
+              <div
+                className="cyber-card p-7 flex flex-col justify-between border-[var(--border-navy)] bg-gradient-to-br from-[var(--bg-card)] to-[var(--navy-deep)]/15 group cursor-pointer"
+                onClick={() => inspectCadre("opsec")}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="icon-badge text-[var(--cyan-accent)]">
+                      <i className="ph-fill ph-fingerprint text-2xl"></i>
+                    </div>
+                    <span className="font-mono-cyber text-[0.65rem] font-bold text-emerald-400 px-2.5 py-1 rounded bg-[var(--terminal-bg)] border border-emerald-500/30 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>{" "}
+                      // CADRE: OPSEC-06
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-bold text-[var(--text-main)] mb-1 group-hover:text-[var(--cyan-accent)] transition-colors">
+                    Non-Attributable Defense Protocol
+                  </h4>
+                  <div className="text-xs font-bold text-[var(--cyan-accent)] uppercase tracking-wider mb-3">
+                    Institutional Client Shield
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-5">
+                    Eliminating executive social exposure prevents adversary
+                    credential harvesting and targeted BEC campaigns against
+                    client environments. Our identity is our collective defense
+                    benchmark.
+                  </p>
+                  <div className="space-y-1.5 text-xs text-[var(--text-muted)] font-mono-cyber mb-6 bg-[var(--terminal-bg)]/60 p-3 rounded-xl border border-[var(--border-subtle)]">
+                    <div className="flex items-center justify-between">
+                      <span>Data Custody:</span>{" "}
+                      <span className="text-emerald-400 font-bold">
+                        100% Non-Custodial
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Client Governance:</span>{" "}
+                      <span className="text-[var(--text-main)] font-bold">
+                        Strict Sovereign NDA
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Deployment Enclave:</span>{" "}
+                      <span className="text-[var(--cyan-accent)] font-bold">
+                        Zero Exposure Footprint
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between mb-3">
+                    <span className="text-[0.7rem] text-[var(--text-muted)] font-bold">
+                      Institutional Security Guaranteed
+                    </span>
+                    <span className="tag-pill text-[0.62rem] text-emerald-400 border-emerald-500/30">
+                      ENFORCED
+                    </span>
+                  </div>
+                  <div className="text-[0.7rem] font-bold text-[var(--cyan-accent)] flex items-center justify-between group-hover:translate-x-1 transition-transform">
+                    <span>View Security Whitepaper</span>
+                    <i className="ph-bold ph-arrow-right text-xs"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Metric Strip */}
+            <div className="cyber-card p-6 border-[var(--border-navy)] bg-[var(--bg-surface)]">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                <div>
+                  <div className="text-2xl lg:text-3xl font-bold text-[var(--cyan-accent)] font-mono-cyber">
+                    &lt; 15 Min
+                  </div>
+                  <div className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mt-1">
+                    P1 Containment SLA
+                  </div>
+                </div>
+                <div>
+                  <div className="text-2xl lg:text-3xl font-bold text-emerald-400 font-mono-cyber">
+                    100%
+                  </div>
+                  <div className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mt-1">
+                    Clean Audit Opinions
+                  </div>
+                </div>
+                <div>
+                  <div className="text-2xl lg:text-3xl font-bold text-[var(--navy-bright)] font-mono-cyber">
+                    Tier-3
+                  </div>
+                  <div className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mt-1">
+                    Principal-Only Bench
+                  </div>
+                </div>
+                <div>
+                  <div className="text-2xl lg:text-3xl font-bold text-[var(--text-main)] font-mono-cyber">
+                    Zero-Custody
+                  </div>
+                  <div className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mt-1">
+                    Non-Custodial Telemetry
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Enterprise Services Matrix */}
+      <section id="services" className="py-28 relative">
+        <div className="custom-container">
+          <div className="text-center mb-16">
+            <div className="section-eyebrow">
+              Comprehensive Defense Portfolio
+            </div>
+            <h2 className="section-heading">Engineered Managed Services</h2>
+            <p className="section-desc">
+              Unified IT infrastructure engineering, autonomous managed
+              detection &amp; response, and audit-ready governance.
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-3 mt-8">
+              <button
+                type="button"
+                onClick={() => setActiveServiceTab("sec")}
+                id="tab-btn-sec"
+                className={`tab-btn ${
+                  activeServiceTab === "sec" ? "active" : ""
+                }`}
+              >
+                Managed Security Services
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveServiceTab("it")}
+                id="tab-btn-it"
+                className={`tab-btn ${
+                  activeServiceTab === "it" ? "active" : ""
+                }`}
+              >
+                Managed IT Services
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveServiceTab("comp")}
+                id="tab-btn-comp"
+                className={`tab-btn ${
+                  activeServiceTab === "comp" ? "active" : ""
+                }`}
+              >
+                Compliance &amp; Auditing
+              </button>
+            </div>
+          </div>
+
+          {/* Tier 1: Security */}
+          {activeServiceTab === "sec" && (
+            <div
+              id="service-group-sec"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-shield-check text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    MDR / MXDR / EDR / XDR
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    24/7/365 active telemetry ingestion across endpoints, cloud
+                    workloads, SaaS, and identity fabrics with machine-speed
+                    auto-isolation.
+                  </p>
+                </div>
+                <ul className="text-xs text-[var(--text-muted)] space-y-2.5 pt-4 border-t border-[var(--border-subtle)]">
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Real-time kernel-level behavioral blocking
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Multi-cloud identity threat detection (ITDR)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Sub-15 minute critical incident response SLA
+                  </li>
+                </ul>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-crosshair text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    Hypothesis Threat Hunting
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    Human-led adversarial simulation and deep forensic
+                    exploration to catch living-off-the-land (LotL) attackers
+                    that bypass signature filters.
+                  </p>
+                </div>
+                <ul className="text-xs text-[var(--text-muted)] space-y-2.5 pt-4 border-t border-[var(--border-subtle)]">
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    MITRE ATT&amp;CK matrix gap verification
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Zero-day exploit telemetry correlation
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Advanced memory &amp; PowerShell analysis
+                  </li>
+                </ul>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-lightning text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    Unified SIEM &amp; SOAR
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    Cloud-native log lake combined with customized Python and
+                    API orchestration playbooks to neutralize malicious
+                    connections in seconds.
+                  </p>
+                </div>
+                <ul className="text-xs text-[var(--text-muted)] space-y-2.5 pt-4 border-t border-[var(--border-subtle)]">
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Multi-terabyte scalable log retention
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Sub-second automated token revocation
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Custom alert correlation &amp; noise reduction
+                  </li>
+                </ul>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-arrows-clockwise text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    Business Continuity &amp; DR
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    Ransomware-proof air-gapped backup engineering, crisis
+                    playbooks, and disaster recovery architectures that
+                    guarantee business survival.
+                  </p>
+                </div>
+                <ul className="text-xs text-[var(--text-muted)] space-y-2.5 pt-4 border-t border-[var(--border-subtle)]">
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Immutable write-once backup storage
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Granular RPO &amp; RTO validation testing
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Executive crisis communication protocols
+                  </li>
+                </ul>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-gear-six text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    SecOps &amp; Architecture Eng
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    Custom detection rule authoring, firewall and WAF tuning,
+                    API gateway security, and zero-trust perimeter
+                    configuration.
+                  </p>
+                </div>
+                <ul className="text-xs text-[var(--text-muted)] space-y-2.5 pt-4 border-t border-[var(--border-subtle)]">
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    YARA &amp; Sigma rule custom authoring
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Cloud network microsegmentation
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    CASB &amp; SSPM policy orchestration
+                  </li>
+                </ul>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-bug text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    VAPT &amp; Offensive Testing
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    CREST-aligned offensive penetration testing across web
+                    applications, APIs, mobile binaries, and internal active
+                    directory topologies.
+                  </p>
+                </div>
+                <ul className="text-xs text-[var(--text-muted)] space-y-2.5 pt-4 border-t border-[var(--border-subtle)]">
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    OWASP Top 10 Web &amp; GraphQL testing
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Internal Active Directory domain escalation
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                    Executive remediation roadmap &amp; re-test
+                  </li>
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {/* Tier 2: Managed IT */}
+          {activeServiceTab === "it" && (
+            <div
+              id="service-group-it"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-hard-drives text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">System Engineering</h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    High-availability server infrastructure, virtualization
+                    (VMware/Hyper-V), storage cluster management, and hybrid
+                    cloud networking.
+                  </p>
+                </div>
+                <div className="tag-pill text-[0.68rem]">
+                  Hybrid Cloud • Tier-4 Uptime
+                </div>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-devices text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    End User Computing (EUC)
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    Zero-touch workstation provisioning via Microsoft Intune and
+                    Apple MDM, patch oversight, identity federation, and
+                    seamless hardware lifecycle.
+                  </p>
+                </div>
+                <div className="tag-pill text-[0.68rem]">
+                  Intune • Jamf • MDM
+                </div>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-headset text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    Customer Experience (CX Desk)
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    24/7 bilingual white-glove technical support desk for end
+                    users with guaranteed 5-minute first-response SLAs and 98%
+                    first-contact resolution.
+                  </p>
+                </div>
+                <div className="tag-pill text-[0.68rem]">
+                  24/7 White-Glove Support
+                </div>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-clipboard-text text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    ITIL &amp; ITSM Services
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    Standardized ITIL v4 incident, problem, and change
+                    management workflows built directly into ServiceNow or Jira
+                    Service Management.
+                  </p>
+                </div>
+                <div className="tag-pill text-[0.68rem]">ITIL v4 Certified</div>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-tree-structure text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    Asset Management Solutions
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    Real-time CMDB mapping, shadow IT asset discovery, license
+                    optimization, and warranty lifecycle tracking across hybrid
+                    infrastructures.
+                  </p>
+                </div>
+                <div className="tag-pill text-[0.68rem]">
+                  Shadow IT Discovery • CMDB
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tier 3: Compliance */}
+          {activeServiceTab === "comp" && (
+            <div
+              id="service-group-comp"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-shield-checkered text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">Endpoint Hardening</h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    CIS Benchmark Level 1 &amp; 2 baseline enforcement,
+                    BitLocker/FileVault encryption enforcement, USB device
+                    lockdown, and local admin removal.
+                  </p>
+                </div>
+                <div className="tag-pill text-[0.68rem]">
+                  CIS Benchmarks Level 2
+                </div>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-chart-bar text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    Security Posture Assessment
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    Comprehensive gap audits across cloud topologies (CSPM),
+                    identity silos, and Active Directory trust boundaries with
+                    executive risk scoring.
+                  </p>
+                </div>
+                <div className="tag-pill text-[0.68rem]">
+                  CSPM &amp; SSPM Auditing
+                </div>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-certificate text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    Multi-Framework Readiness
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    Turnkey audit preparation and continuous evidence collection
+                    for SOC 2 (Type I/II), ISO 27001, FERPA, FedRAMP, NIST CSF
+                    2.0, and HIPAA.
+                  </p>
+                </div>
+                <div className="tag-pill text-[0.68rem]">
+                  SOC 2 • ISO 27001 • FERPA
+                </div>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-users-three text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    Table Top Exercises (TTX)
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    Scenario-based crisis simulations testing executive
+                    leadership, legal, PR, and technical response teams against
+                    sophisticated ransomware extortion.
+                  </p>
+                </div>
+                <div className="tag-pill text-[0.68rem]">
+                  Executive War-Games
+                </div>
+              </div>
+
+              <div className="cyber-card p-8 flex flex-col justify-between">
+                <div>
+                  <div className="icon-badge mb-5">
+                    <i className="ph-fill ph-graduation-cap text-2xl"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">
+                    Security Awareness &amp; Phishing
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                    Gamified micro-learning, department risk profiling, and
+                    continuous spear-phishing attack simulations transforming
+                    employees into active human firewalls.
+                  </p>
+                </div>
+                <div className="tag-pill text-[0.68rem]">
+                  Spear-Phishing Simulations
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Partners & Technologies (Typographic) */}
+      <section
+        id="partners"
+        className="py-24 bg-[var(--bg-surface)] border-y border-[var(--border-subtle)] overflow-hidden"
+      >
+        <div className="custom-container">
+          <div className="text-center mb-14">
+            <div className="section-eyebrow flex items-center justify-center gap-2">
+              <i className="ph-fill ph-broadcast text-base text-[var(--cyan-accent)]"></i>
+              HYPERSCALE ARCHITECTURE &amp; TELEMETRY INTEGRATION
+            </div>
+            <h2 className="section-heading">
+              Partners &amp; Technologies We Support
+            </h2>
+            <p className="section-desc max-w-2xl">
+              Native API orchestration, telemetry ingestion, and continuous
+              compliance across premier enterprise cybersecurity and cloud
+              ecosystems.
+            </p>
+          </div>
+        </div>
+
+        {/* Dual Marquee Bands */}
+        <div className="space-y-4">
+          <div className="marquee-container">
+            <div className="marquee-track marquee-forward">
+              <div className="partner-logo-tile">CrowdStrike</div>
+              <div className="partner-logo-tile">
+                Microsoft Sentinel &amp; E5
+              </div>
+              <div className="partner-logo-tile">Google Cloud Platform</div>
+              <div className="partner-logo-tile">
+                Amazon Web Services (AWS)
+              </div>
+              <div className="partner-logo-tile">Palo Alto Networks</div>
+              <div className="partner-logo-tile">SentinelOne</div>
+              <div className="partner-logo-tile">Cisco Systems</div>
+              <div className="partner-logo-tile">Fortinet</div>
+              <div className="partner-logo-tile">Check Point</div>
+              <div className="partner-logo-tile">CyberArk</div>
+              <div className="partner-logo-tile">Datadog</div>
+
+              {/* Loop Clones */}
+              <div className="partner-logo-tile">CrowdStrike</div>
+              <div className="partner-logo-tile">
+                Microsoft Sentinel &amp; E5
+              </div>
+              <div className="partner-logo-tile">Google Cloud Platform</div>
+              <div className="partner-logo-tile">
+                Amazon Web Services (AWS)
+              </div>
+              <div className="partner-logo-tile">Palo Alto Networks</div>
+              <div className="partner-logo-tile">SentinelOne</div>
+              <div className="partner-logo-tile">Cisco Systems</div>
+              <div className="partner-logo-tile">Fortinet</div>
+              <div className="partner-logo-tile">Check Point</div>
+              <div className="partner-logo-tile">CyberArk</div>
+              <div className="partner-logo-tile">Datadog</div>
+            </div>
+          </div>
+
+          <div className="marquee-container">
+            <div className="marquee-track marquee-reverse">
+              <div className="partner-logo-tile">Splunk Enterprise</div>
+              <div className="partner-logo-tile">Red Hat Enterprise</div>
+              <div className="partner-logo-tile">SonicWall</div>
+              <div className="partner-logo-tile">Sumo Logic</div>
+              <div className="partner-logo-tile">Vanta Compliance</div>
+              <div className="partner-logo-tile">Drata Trust</div>
+              <div className="partner-logo-tile">
+                Apple MDM &amp; Enterprise
+              </div>
+              <div className="partner-logo-tile">Dell Technologies</div>
+              <div className="partner-logo-tile">
+                Hewlett Packard Enterprise (HPE)
+              </div>
+              <div className="partner-logo-tile">Lenovo ThinkShield</div>
+              <div className="partner-logo-tile">PagerDuty</div>
+
+              {/* Loop Clones */}
+              <div className="partner-logo-tile">Splunk Enterprise</div>
+              <div className="partner-logo-tile">Red Hat Enterprise</div>
+              <div className="partner-logo-tile">SonicWall</div>
+              <div className="partner-logo-tile">Sumo Logic</div>
+              <div className="partner-logo-tile">Vanta Compliance</div>
+              <div className="partner-logo-tile">Drata Trust</div>
+              <div className="partner-logo-tile">
+                Apple MDM &amp; Enterprise
+              </div>
+              <div className="partner-logo-tile">Dell Technologies</div>
+              <div className="partner-logo-tile">
+                Hewlett Packard Enterprise (HPE)
+              </div>
+              <div className="partner-logo-tile">Lenovo ThinkShield</div>
+              <div className="partner-logo-tile">PagerDuty</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="custom-container mt-10 text-center">
+          <p className="text-xs text-[var(--text-muted)] font-mono-cyber flex items-center justify-center gap-1.5">
+            <i className="ph-fill ph-circle text-[8px] text-[var(--cyan-accent)]"></i>{" "}
+            Continuous SOAR API ingestion &amp; Zero-Trust attestation verified
+            across all partner runtimes.
+          </p>
+        </div>
+      </section>
+
+      {/* Resources & Knowledge Hub */}
+      <section id="resources" className="py-28 relative">
+        <div className="custom-container">
+          <div className="text-center mb-16">
+            <div className="section-eyebrow">Intelligence &amp; Insights</div>
+            <h2 className="section-heading">
+              Security Radar &amp; Knowledge Hub
+            </h2>
+            <p className="section-desc">
+              Actionable research, live vulnerability disclosures, generative AI
+              governance frameworks, and security hygiene playbooks.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="cyber-card p-8 bg-gradient-to-br from-[var(--bg-card)] via-[var(--bg-card)] to-[var(--navy-deep)]/20">
+              <div className="flex items-center justify-between mb-4">
+                <span className="tag-pill text-[var(--cyan-accent)]">
+                  FEATURED TOOLKIT
+                </span>
+                <span className="text-xs font-bold text-[var(--text-muted)]">
+                  Updated Weekly
+                </span>
+              </div>
+              <h3 className="text-2xl font-bold mb-3">
+                Enterprise AI Starter Kit: Generative AI Governance
+              </h3>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                A comprehensive architecture blueprint for securely deploying
+                Large Language Models (LLMs), containing Shadow AI data leakage,
+                defending against prompt injection, and achieving EU AI Act
+                compliance.
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-6 text-xs text-[var(--text-muted)]">
+                <div className="flex items-center gap-2">
+                  <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                  LLM Data Exfiltration Guards
+                </div>
+                <div className="flex items-center gap-2">
+                  <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                  Shadow AI API Scanner
+                </div>
+                <div className="flex items-center gap-2">
+                  <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                  Prompt Injection Threat Models
+                </div>
+                <div className="flex items-center gap-2">
+                  <i className="ph-fill ph-check-circle text-[var(--cyan-accent)]"></i>{" "}
+                  Model Attestation Checklist
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => openModal("Download AI Starter Kit")}
+                className="px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] transition-all cursor-pointer flex items-center gap-2"
+              >
+                <span>Access AI Security Framework</span>
+                <i className="ph-bold ph-arrow-right text-xs"></i>
+              </button>
+            </div>
+
+            <div className="cyber-card p-8 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="tag-pill">PRACTICE GUIDE</span>
+                  <span className="text-xs font-bold text-[var(--text-muted)]">
+                    Executive Whitepaper
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold mb-3">
+                  The Modern Enterprise Security Hygiene Standard
+                </h3>
+                <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+                  18 actionable baseline configurations that mitigate 94% of
+                  commodity ransomware attacks before an incident responder is
+                  needed. Covers CIS Benchmarks, Active Directory Tiering, and
+                  Cloud Workload Isolation.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => openModal("Security Hygiene Standard Guide")}
+                className="text-xs font-bold text-[var(--cyan-accent)] hover:underline flex items-center gap-1.5 self-start cursor-pointer"
+              >
+                <span>Read Executive Hygiene Whitepaper</span>
+                <i className="ph-bold ph-arrow-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Industries Safeguarded */}
+      <section
+        id="industries"
+        className="py-24 bg-[var(--bg-surface)] border-t border-[var(--border-subtle)]"
+      >
+        <div className="custom-container">
+          <div className="text-center mb-16">
+            <div className="section-eyebrow">Tailored Threat Models</div>
+            <h2 className="section-heading">Industries We Safeguard</h2>
+            <p className="section-desc">
+              Sovereign compliance and threat hunting engineered specifically
+              for highly regulated and mission-critical enterprise environments.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="cyber-card p-7">
+              <div className="icon-badge mb-5">
+                <i className="ph-fill ph-bank text-2xl"></i>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Fintech &amp; Banking</h3>
+              <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-4">
+                PCI-DSS 4.0, SOC 2 Type II, GLBA compliance, real-time wire
+                fraud detection, and transactional API hardening.
+              </p>
+              <div className="tag-pill text-[0.65rem]">PCI-DSS 4.0 • SOC 2</div>
+            </div>
+
+            <div className="cyber-card p-7">
+              <div className="icon-badge mb-5">
+                <i className="ph-fill ph-heartbeat text-2xl"></i>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Healthtech &amp; ePHI</h3>
+              <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-4">
+                HIPAA/HITECH safeguards, medical device IoT segmentation, and
+                immutable patient record backup architectures.
+              </p>
+              <div className="tag-pill text-[0.65rem]">HIPAA • HITECH</div>
+            </div>
+
+            <div className="cyber-card p-7">
+              <div className="icon-badge mb-5">
+                <i className="ph-fill ph-student text-2xl"></i>
+              </div>
+              <h3 className="text-xl font-bold mb-2">EdTech &amp; Education</h3>
+              <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-4">
+                Student privacy (FERPA, PIPEDA), campus cloud enclave isolation,
+                LMS/SIS penetration testing, and zero-trust research lab
+                protection.
+              </p>
+              <div className="tag-pill text-[0.65rem]">
+                FERPA • PIPEDA • LMS
+              </div>
+            </div>
+
+            <div className="cyber-card p-7">
+              <div className="icon-badge mb-5">
+                <i className="ph-fill ph-cloud text-2xl"></i>
+              </div>
+              <h3 className="text-xl font-bold mb-2">High-Growth SaaS</h3>
+              <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-4">
+                Continuous CI/CD vulnerability scanning, container security
+                (CSPM), multi-tenant isolation, and zero-trust IAM.
+              </p>
+              <div className="tag-pill text-[0.65rem]">
+                Kubernetes • Zero-Trust
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Careers */}
+      <section id="careers" className="py-24 relative">
+        <div className="custom-container">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+            <div>
+              <div className="section-eyebrow">Join the Defenders</div>
+              <h2 className="text-3xl font-bold">
+                Careers in Sovereign Cyber Defense
+              </h2>
+              <p className="text-sm text-[var(--text-muted)] mt-1 max-w-xl">
+                Work alongside veteran threat hunters and principal security
+                architects on high-stakes missions.
+              </p>
+            </div>
+            <div className="mt-4 md:mt-0">
+              <span className="tag-pill">REMOTE &amp; GLOBAL HUBS</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="cyber-card p-6 flex flex-col justify-between">
+              <div>
+                <div className="text-xs font-bold text-[var(--cyan-accent)] uppercase tracking-wider mb-1">
+                  SOC Operations
+                </div>
+                <h3 className="text-lg font-bold text-[var(--text-main)] mb-2">
+                  Senior MXDR Threat Hunter
+                </h3>
+                <p className="text-xs text-[var(--text-muted)] mb-4 leading-relaxed">
+                  Lead proactive threat hunts, reverse-engineer ransomware
+                  payloads, and author automated SOAR containment playbooks.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => openJobModal("role1")}
+                className="w-full py-2.5 rounded-lg text-xs font-bold text-[var(--text-main)] bg-[var(--bg-surface)] border border-[var(--border-navy)] hover:bg-[var(--navy-primary)] hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>View Role &amp; Apply</span>
+                <i className="ph-bold ph-arrow-right text-xs"></i>
+              </button>
+            </div>
+
+            <div className="cyber-card p-6 flex flex-col justify-between">
+              <div>
+                <div className="text-xs font-bold text-[var(--navy-bright)] uppercase tracking-wider mb-1">
+                  Offensive Security
+                </div>
+                <h3 className="text-lg font-bold text-[var(--text-main)] mb-2">
+                  Principal VAPT Penetration Tester
+                </h3>
+                <p className="text-xs text-[var(--text-muted)] mb-4 leading-relaxed">
+                  Execute high-impact web, API, Active Directory, and cloud
+                  adversary simulations for enterprise clients.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => openJobModal("role2")}
+                className="w-full py-2.5 rounded-lg text-xs font-bold text-[var(--text-main)] bg-[var(--bg-surface)] border border-[var(--border-navy)] hover:bg-[var(--navy-primary)] hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>View Role &amp; Apply</span>
+                <i className="ph-bold ph-arrow-right text-xs"></i>
+              </button>
+            </div>
+
+            <div className="cyber-card p-6 flex flex-col justify-between">
+              <div>
+                <div className="text-xs font-bold text-[var(--cyan-accent)] uppercase tracking-wider mb-1">
+                  Governance &amp; vCISO
+                </div>
+                <h3 className="text-lg font-bold text-[var(--text-main)] mb-2">
+                  Lead Compliance &amp; SOC 2 Architect
+                </h3>
+                <p className="text-xs text-[var(--text-muted)] mb-4 leading-relaxed">
+                  Guide scale-up founders and enterprise executives through SOC
+                  2 Type II, ISO 27001, and FERPA readiness roadmaps.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => openJobModal("role3")}
+                className="w-full py-2.5 rounded-lg text-xs font-bold text-[var(--text-main)] bg-[var(--bg-surface)] border border-[var(--border-navy)] hover:bg-[var(--navy-primary)] hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>View Role &amp; Apply</span>
+                <i className="ph-bold ph-arrow-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact & Intake */}
+      <section
+        id="contact"
+        className="py-28 bg-[var(--bg-surface)] border-t border-[var(--border-subtle)] relative"
+      >
+        <div className="custom-container">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="lg:col-span-5">
+              <div className="section-eyebrow">Sovereign Briefing</div>
+              <h2 className="text-3xl lg:text-4xl font-bold mb-4">
+                Tell Us About Your Infrastructure
+              </h2>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8">
+                Speak directly with a Principal Security Architect at Exaltis
+                Systems LLC. We deliver customized attack surface scopes,
+                compliance gap roadmaps, and pricing proposals within 24 hours.
+              </p>
+
+              {/* Contact Details (Uniform Phosphor Fill Icons) */}
+              <div className="space-y-4 text-xs text-[var(--text-muted)] mb-8">
+                <div className="flex items-center gap-3">
+                  <span className="w-9 h-9 rounded-lg bg-[var(--badge-bg)] border border-[var(--badge-border)] flex items-center justify-center text-[var(--cyan-accent)] flex-shrink-0">
+                    <i className="ph-fill ph-map-pin text-lg"></i>
+                  </span>
+                  <span>
+                    <strong>Headquarters:</strong> Calgary, AB - Canada •
+                    Operations Across the Globe
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-9 h-9 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 flex-shrink-0">
+                    <i className="ph-fill ph-siren text-lg"></i>
+                  </span>
+                  <span>
+                    <strong>Emergency Hotline:</strong> Priority Incident
+                    Response Dispatch (P1 SLA)
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-9 h-9 rounded-lg bg-[var(--badge-bg)] border border-[var(--badge-border)] flex items-center justify-center text-[var(--cyan-accent)] flex-shrink-0">
+                    <i className="ph-fill ph-envelope-simple text-lg"></i>
+                  </span>
+                  <span>
+                    <strong>Direct Inquiries:</strong>{" "}
+                    connect@exaltissystems.com
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-navy)]">
+                <div className="text-xs font-bold text-[var(--text-main)] mb-1 flex items-center gap-1.5">
+                  <i className="ph-fill ph-shield-check text-emerald-400"></i>{" "}
+                  Strict Non-Disclosure Guarantee
+                </div>
+                <p className="text-[0.75rem] text-[var(--text-muted)]">
+                  All architecture blueprints and telemetry disclosed during
+                  consultations are protected under mutual sovereign NDAs.
+                </p>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7">
+              <div className="cyber-card p-8 lg:p-10">
+                <h3 className="text-xl font-bold mb-6 flex items-center justify-between">
+                  <span>Security Intake &amp; RFP Portal</span>
+                  <span className="text-xs text-[var(--cyan-accent)] font-bold flex items-center gap-1">
+                    <i className="ph-fill ph-lock-key"></i> Confidential
+                  </span>
+                </h3>
+
+                <form
+                  onSubmit={handleMainIntakeSubmit}
+                  id="main-intake-form"
+                  className="space-y-4"
+                  noValidate
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                        Your Full Name{" "}
+                        <span className="field-pill-required">Required</span>
+                      </label>
+                      <input
+                        ref={intakeNameRef}
+                        type="text"
+                        name="name"
+                        id="intake-name"
+                        placeholder="e.g. Alex Morgan"
+                        maxLength={60}
+                        required
+                        autoComplete="name"
+                        value={intakeName}
+                        onChange={handleNameChange}
+                        className={`input-mandatory w-full px-4 py-2.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none ${
+                          intakeErrors.name ? "input-error" : ""
+                        }`}
+                      />
+                      <div className="text-[0.65rem] text-[var(--text-muted)] mt-1">
+                        Letters, spaces, hyphens, and apostrophes only.
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                        Work Email{" "}
+                        <span className="field-pill-required">Required</span>
+                      </label>
+                      <input
+                        ref={intakeEmailRef}
+                        type="email"
+                        name="email"
+                        id="intake-email"
+                        placeholder="security@yourcompany.com"
+                        maxLength={80}
+                        required
+                        autoComplete="email"
+                        value={intakeEmail}
+                        onChange={(e) => {
+                          setIntakeErrors((prev) => ({
+                            ...prev,
+                            email: false,
+                          }));
+                          setIntakeEmail(e.target.value);
+                        }}
+                        className={`input-mandatory w-full px-4 py-2.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none ${
+                          intakeErrors.email ? "input-error" : ""
+                        }`}
+                      />
+                      <div className="text-[0.65rem] text-[var(--text-muted)] mt-1">
+                        RFC-compliant corporate domain email address.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                        Company Size (Seats / Nodes){" "}
+                        <span className="field-pill-required">Required</span>
+                      </label>
+                      <select
+                        ref={intakeSizeRef}
+                        name="company_size"
+                        id="intake-size"
+                        required
+                        value={intakeSize}
+                        onChange={(e) => {
+                          setIntakeErrors((prev) => ({
+                            ...prev,
+                            size: false,
+                          }));
+                          setIntakeSize(e.target.value);
+                        }}
+                        className={`input-mandatory w-full px-4 py-2.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none cursor-pointer ${
+                          intakeErrors.size ? "input-error" : ""
+                        }`}
+                      >
+                        <option value="">Select scope</option>
+                        <option value="5-50 Seats">
+                          5 - 50 Seats (Small Business / Startup)
+                        </option>
+                        <option value="50-250 Seats">
+                          50 - 250 Seats (Mid-Market Scale-Up)
+                        </option>
+                        <option value="250-1000+ Seats">
+                          250 - 1000+ Seats (Enterprise / Hybrid)
+                        </option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                        Primary Defense Focus
+                      </label>
+                      <select
+                        name="defense_focus"
+                        id="intake-focus"
+                        value={intakeFocus}
+                        onChange={(e) => setIntakeFocus(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none cursor-pointer"
+                      >
+                        <option>24/7 Autonomous SOC &amp; MXDR</option>
+                        <option>
+                          SOC 2 / ISO 27001 / FERPA Compliance Audit
+                        </option>
+                        <option>Offensive VAPT Penetration Testing</option>
+                        <option>Full Managed IT &amp; SecOps Bundle</option>
+                        <option>Emergency Incident Response Retainer</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                      Tell Us About Yourself &amp; Current Infrastructure Needs
+                    </label>
+                    <textarea
+                      ref={intakeDetailsRef}
+                      name="infrastructure_details"
+                      id="intake-details"
+                      rows={3}
+                      maxLength={1000}
+                      placeholder="Describe your current cloud setup (AWS/Azure/M365), regulatory deadlines, or immediate threat hunting priorities..."
+                      value={intakeDetails}
+                      onChange={(e) => {
+                        setIntakeErrors((prev) => ({
+                          ...prev,
+                          details: false,
+                        }));
+                        setIntakeDetails(e.target.value);
+                      }}
+                      className={`w-full px-4 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-sm outline-none ${
+                        intakeErrors.details ? "input-error" : ""
+                      }`}
+                    ></textarea>
+                    <div className="text-[0.65rem] text-[var(--text-muted)] mt-1 flex items-center justify-between">
+                      <span>
+                        Protected against SQLi, XSS, and command injection
+                        attacks.
+                      </span>
+                      <span id="intake-details-counter">
+                        {intakeDetails.length} / 1000
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="checkbox"
+                      id="intake-ai-blueprint"
+                      className="rounded text-[var(--navy-primary)] focus:ring-0 cursor-pointer"
+                      checked={intakeAiBlueprint}
+                      onChange={(e) => setIntakeAiBlueprint(e.target.checked)}
+                    />
+                    <label
+                      htmlFor="intake-ai-blueprint"
+                      className="text-xs text-[var(--cyan-accent)] font-medium cursor-pointer"
+                    >
+                      ✨ Also generate an instant AI Architecture Preview for my
+                      stack
+                    </label>
+                  </div>
+
+                  <button
+                    type="submit"
+                    id="intake-submit-btn"
+                    disabled={intakeSubmitting}
+                    className="w-full py-3.5 rounded-lg text-sm font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] shadow-[0_6px_20px_var(--navy-glow)] transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {intakeSubmitting ? (
+                      <>
+                        <svg
+                          className="animate-spin h-4 w-4 text-white inline mr-2"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v8H4z"
+                          ></path>
+                        </svg>
+                        <span>Transmitting Telemetry...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>
+                          Submit RFP &amp; Request Principal Architect Call
+                        </span>
+                        <i className="ph-bold ph-arrow-right text-sm"></i>
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* RFP Modal */}
+      <div
+        className={`modal-backdrop ${contactModalOpen ? "active" : ""}`}
+        id="contact-modal"
+        onClick={(e) => {
+          if (e.target.id === "contact-modal") closeModal();
+        }}
+      >
+        <div className="bg-[var(--bg-card)] border border-[var(--border-navy)] rounded-2xl w-full max-w-lg p-8 shadow-2xl relative">
+          <button
+            type="button"
+            className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-white text-2xl font-bold cursor-pointer"
+            onClick={closeModal}
+          >
+            ×
+          </button>
+          <h3 id="modal-title" className="text-xl font-bold mb-1">
+            Request Exaltis Security Proposal
+          </h3>
+          <p className="text-xs text-[var(--text-muted)] mb-6">
+            Receive a tailored scope, proposal, and architecture consultation
+            within 24 hours.
+          </p>
+
+          <form
+            onSubmit={handleRfpModalSubmit}
+            id="rfp-modal-form"
+            className="space-y-3.5"
+            noValidate
+          >
+            <div>
+              <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                Selected Focus / Scope
+              </label>
+              <input
+                type="text"
+                name="selected_package"
+                id="form-package"
+                readOnly
+                value={selectedPackage}
+                className="w-full px-3.5 py-2 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs font-semibold outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                Work Email <span className="field-pill-required">Required</span>
+              </label>
+              <input
+                ref={rfpEmailRef}
+                type="email"
+                name="work_email"
+                id="rfp-work-email"
+                placeholder="security@company.com"
+                maxLength={80}
+                required
+                value={rfpEmail}
+                onChange={(e) => {
+                  setRfpErrors((prev) => ({ ...prev, email: false }));
+                  setRfpEmail(e.target.value);
+                }}
+                className={`input-mandatory w-full px-3.5 py-2 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none ${
+                  rfpErrors.email ? "input-error" : ""
+                }`}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                Company Scope{" "}
+                <span className="field-pill-required">Required</span>
+              </label>
+              <select
+                ref={rfpScopeRef}
+                name="company_scope"
+                id="rfp-company-scope"
+                required
+                value={rfpScope}
+                onChange={(e) => {
+                  setRfpErrors((prev) => ({ ...prev, scope: false }));
+                  setRfpScope(e.target.value);
+                }}
+                className={`input-mandatory w-full px-3.5 py-2 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none cursor-pointer ${
+                  rfpErrors.scope ? "input-error" : ""
+                }`}
+              >
+                <option value="">Select scope</option>
+                <option value="1 - 50 Seats">1 - 50 Seats</option>
+                <option value="50 - 250 Seats">50 - 250 Seats</option>
+                <option value="250+ Seats">250+ Seats</option>
+              </select>
+            </div>
+            <button
+              type="submit"
+              disabled={rfpSubmitting}
+              className="w-full py-3 rounded-lg text-xs font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] transition-all mt-4 cursor-pointer"
+            >
+              {rfpSubmitting ? (
+                <>
+                  <svg
+                    className="animate-spin h-4 w-4 text-white inline mr-2"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    ></path>
+                  </svg>
+                  <span>Transmitting Telemetry...</span>
+                </>
+              ) : (
+                "Confirm Briefing Schedule"
+              )}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Job Modal */}
+      <div
+        className={`modal-backdrop ${jobModalOpen ? "active" : ""}`}
+        id="job-modal"
+        onClick={(e) => {
+          if (e.target.id === "job-modal") closeJobModal();
+        }}
+      >
+        <div className="bg-[var(--bg-card)] border border-[var(--border-navy)] rounded-2xl w-full max-w-2xl p-7 sm:p-9 shadow-2xl relative max-h-[90vh] flex flex-col">
+          <button
+            type="button"
+            className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-white text-2xl font-bold cursor-pointer transition-colors"
+            onClick={closeJobModal}
+          >
+            &times;
+          </button>
+
+          <div className="flex items-center gap-3 mb-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--cyan-accent)] pulse-dot"></span>
+            <span
+              className="text-xs font-bold font-mono-cyber uppercase text-[var(--cyan-accent)]"
+              id="job-modal-badge"
+            >
+              // CAREER OPPORTUNITY // EXALTIS CADRE
+            </span>
+          </div>
+
+          <h3
+            id="job-modal-title"
+            className="text-2xl font-bold mb-1 text-[var(--text-main)]"
+          >
+            {activeJobRole.title}
+          </h3>
+          <div
+            id="job-modal-subtitle"
+            className="text-xs font-bold uppercase tracking-wider text-[var(--navy-bright)] mb-4"
+          >
+            {activeJobRole.subtitle}
+          </div>
+
+          <div
+            id="job-modal-description"
+            className="space-y-4 text-xs text-[var(--text-muted)] leading-relaxed overflow-y-auto pr-2 mb-6 max-h-[42vh]"
+          >
+            <div className="mb-4">
+              <h4 className="text-sm font-bold text-[var(--cyan-accent)] mb-1.5">
+                About the Role
+              </h4>
+              <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                {activeJobRole.about}
+              </p>
+            </div>
+            <div className="mb-4">
+              <h4 className="text-sm font-bold text-[var(--cyan-accent)] mb-1.5">
+                Key Responsibilities
+              </h4>
+              <ul className="list-disc list-inside space-y-1 text-xs text-[var(--text-muted)] leading-relaxed pl-1">
+                {activeJobRole.responsibilities.map((r, idx) => (
+                  <li key={idx}>{r}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-[var(--cyan-accent)] mb-1.5">
+                Qualifications
+              </h4>
+              <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                {activeJobRole.qualifications}
+              </p>
+            </div>
+          </div>
+
+          <form
+            className="pt-4 border-t border-[var(--border-subtle)] space-y-3.5"
+            id="job-apply-form"
+            action="https://formspree.io/f/xzezezov"
+            method="POST"
+            encType="multipart/form-data"
+            onSubmit={handleJobApplication}
+            noValidate
+          >
+            <input
+              type="hidden"
+              id="applied-role"
+              name="Applied_Role"
+              value={activeJobRole.title}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                  Email Address{" "}
+                  <span className="field-pill-required">Required</span>
+                </label>
+                <input
+                  ref={applicantEmailRef}
+                  type="email"
+                  id="applicant-email"
+                  name="Email"
+                  maxLength={80}
+                  required
+                  placeholder="name@example.com"
+                  value={applicantEmail}
+                  onChange={(e) => {
+                    setJobErrors((prev) => ({ ...prev, email: false }));
+                    setApplicantEmail(e.target.value);
+                  }}
+                  className={`input-mandatory w-full px-3.5 py-2 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none font-medium ${
+                    jobErrors.email ? "input-error" : ""
+                  }`}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                  Resume &amp; Cover Dossier (.PDF Only){" "}
+                  <span className="field-pill-required">Required</span>
+                </label>
+                <input
+                  ref={applicantFileRef}
+                  type="file"
+                  id="applicant-doc"
+                  name="Attachment"
+                  required
+                  accept=".pdf,application/pdf"
+                  onChange={(e) => validatePdfFile(e.target)}
+                  className={`input-mandatory w-full px-3 py-1.5 rounded-lg border focus:border-[var(--cyan-accent)] text-[var(--text-main)] text-xs outline-none file:mr-2.5 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[0.7rem] file:font-bold file:bg-[var(--badge-bg)] file:text-[var(--cyan-accent)] hover:file:bg-[var(--navy-primary)] hover:file:text-white file:cursor-pointer cursor-pointer ${
+                    jobErrors.doc ? "input-error" : ""
+                  }`}
+                />
+                <div className="text-[0.62rem] text-[var(--text-muted)] mt-1">
+                  Strictly *.pdf format up to 5MB. Other formats rejected.
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-[0.68rem] text-[var(--text-muted)] flex items-center gap-1">
+                <i className="ph-fill ph-shield-check text-emerald-400"></i>{" "}
+                Encrypted submission &bull; OPSEC clearance verified
+              </span>
+              <button
+                type="submit"
+                id="job-submit-btn"
+                disabled={applicantSubmitting}
+                className="px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] shadow-[0_4px_16px_var(--navy-glow)] hover:-translate-y-0.5 transition-all cursor-pointer flex items-center gap-2"
+              >
+                {applicantSubmitting ? (
+                  <>
+                    <svg
+                      className="animate-spin h-3.5 w-3.5 text-white inline mr-1.5"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      ></path>
+                    </svg>
+                    <span>Submitting Dossier...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Apply Now</span>
+                    <i className="ph-bold ph-arrow-right text-xs"></i>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* API Key Modal */}
+      <div
+        className={`modal-backdrop ${apiKeyModalOpen ? "active" : ""}`}
+        id="apikey-modal"
+        onClick={(e) => {
+          if (e.target.id === "apikey-modal") setApiKeyModalOpen(false);
+        }}
+      >
+        <div className="bg-[var(--bg-card)] border border-[var(--border-navy)] rounded-2xl w-full max-w-md p-7 shadow-2xl relative">
+          <button
+            type="button"
+            className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-white text-2xl font-bold cursor-pointer"
+            onClick={() => setApiKeyModalOpen(false)}
+          >
+            ×
+          </button>
+
+          <div className="flex items-center gap-2 mb-2">
+            <i className="ph-fill ph-key text-lg text-[var(--cyan-accent)]"></i>
+            <h3 className="text-lg font-bold text-[var(--text-main)]">
+              Gemini AI Engine Keyring
+            </h3>
+          </div>
+          <p className="text-xs text-[var(--text-muted)] mb-5 leading-relaxed">
+            Connect your Google Gemini API key to activate live Google Search
+            grounding, threat radar telemetry, and Gemini TTS dispatches.
+          </p>
+
+          <form onSubmit={handleSaveApiKey} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-[var(--text-muted)] mb-1">
+                Google Gemini API Key
+              </label>
+              <input
+                type="password"
+                id="apikey-input"
+                placeholder="AIzaSy..."
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--terminal-bg)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs font-mono-cyber outline-none focus:border-[var(--cyan-accent)]"
+              />
+              <div className="text-[0.68rem] text-[var(--text-muted)] mt-1.5 flex items-center justify-between">
+                <span>Stored locally in your browser (LocalStorage).</span>
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--cyan-accent)] hover:underline font-bold"
+                >
+                  Get free key ↗
+                </a>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="submit"
+                className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] transition-all cursor-pointer"
+              >
+                Save &amp; Activate Live AI
+              </button>
+              <button
+                type="button"
+                onClick={handleClearApiKey}
+                className="px-4 py-2.5 rounded-lg text-xs font-bold text-[var(--text-muted)] bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-red-500/40 hover:text-red-400 transition-all cursor-pointer"
+              >
+                Clear Key
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* Cadre Modal */}
+      <div
+        className={`modal-backdrop ${cadreModalOpen ? "active" : ""}`}
+        id="cadre-modal"
+        onClick={(e) => {
+          if (e.target.id === "cadre-modal") setCadreModalOpen(false);
+        }}
+      >
+        <div className="bg-[var(--bg-card)] border border-[var(--border-navy)] rounded-2xl w-full max-w-2xl p-8 shadow-2xl relative">
+          <button
+            type="button"
+            className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-white text-2xl font-bold cursor-pointer"
+            onClick={() => setCadreModalOpen(false)}
+          >
+            ×
+          </button>
+
+          <div className="flex items-center gap-3 mb-2">
+            <span className="w-3 h-3 rounded-full bg-[var(--cyan-accent)] pulse-dot"></span>
+            <span
+              className="text-xs font-bold font-mono-cyber uppercase text-[var(--cyan-accent)]"
+              id="cadre-modal-code"
+            >
+              {activeCadre.code}
+            </span>
+          </div>
+          <h3
+            id="cadre-modal-title"
+            className="text-2xl font-bold mb-1 text-[var(--text-main)]"
+          >
+            {activeCadre.title}
+          </h3>
+          <div
+            id="cadre-modal-subtitle"
+            className="text-xs font-bold uppercase tracking-wider text-[var(--navy-bright)] mb-6"
+          >
+            {activeCadre.subtitle}
+          </div>
+
+          <div
+            id="cadre-modal-content"
+            className="space-y-4 text-xs text-[var(--text-muted)] leading-relaxed mb-6 max-h-[60vh] overflow-y-auto pr-2"
+            dangerouslySetInnerHTML={{ __html: activeCadre.content }}
+          />
+
+          <div className="pt-4 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3">
+            <span className="text-[0.7rem] text-[var(--text-muted)] font-mono-cyber">
+              Attested under mutual non-disclosure &amp; OPSEC sovereign
+              standards
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setCadreModalOpen(false);
+                openModal("Directorate Briefing Request");
+              }}
+              className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <span>Request Executive Briefing</span>
+              <i className="ph-bold ph-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Toast Notification Box */}
+      {toastMsg && (
+        <div
+          id="toast-box"
+          className="fixed bottom-6 right-6 px-5 py-3.5 rounded-xl bg-[var(--bg-card)] border border-[var(--cyan-accent)] text-xs font-bold text-[var(--text-main)] shadow-2xl z-50 flex items-center gap-3"
+        >
+          <i className="ph-fill ph-bell-ringing text-base text-[var(--cyan-accent)]"></i>
+          <span id="toast-msg">{toastMsg}</span>
+        </div>
+      )}
+
+      {/* Job Application Toast Box */}
+      {jobToastMsg && (
+        <div
+          id="job-toast-box"
+          className="fixed bottom-6 left-6 max-w-sm px-4 py-3.5 rounded-xl bg-[var(--bg-card)] border border-[var(--cyan-accent)] text-xs text-[var(--text-main)] shadow-2xl z-50 flex items-start gap-3 backdrop-blur-xl transition-all"
+        >
+          <i className="ph-fill ph-check-circle text-base text-emerald-400 mt-0.5 flex-shrink-0"></i>
+          <div>
+            <div className="font-bold text-[var(--cyan-accent)] mb-0.5">
+              Application Transmitted
+            </div>
+            <div
+              id="job-toast-msg"
+              className="text-xs text-[var(--text-muted)] leading-relaxed"
+            >
+              {jobToastMsg}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <footer className="py-10 border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] text-xs text-[var(--text-muted)]">
+        <div className="custom-container">
+          <div className="grid grid-cols-1 md:grid-cols-3 items-center justify-between gap-6">
+            <a
+              href="https://exaltissystems.com"
+              className="flex items-center text-decoration-none group justify-self-center md:justify-self-start"
+            >
+              <ExaltisLogo theme={theme} size="footer" />
+            </a>
+
+            <div className="flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setApiKeyInput(apiKey);
+                  setApiKeyModalOpen(true);
+                }}
+                id="footer-apikey-btn"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold border border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--cyan-accent)] hover:border-[var(--border-navy)] transition-all cursor-pointer"
+              >
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    hasLiveKey ? "bg-emerald-400" : "bg-amber-400"
+                  }`}
+                  id="apikey-indicator-dot"
+                ></span>
+                <span id="apikey-indicator-text">
+                  {hasLiveKey
+                    ? "API Key: Live Grounded"
+                    : "API Key: Offline Mode"}
+                </span>
+              </button>
+            </div>
+
+            <div className="text-xs text-[var(--text-muted)] font-medium text-center md:text-right justify-self-center md:justify-self-end">
+              All rights reserved for &copy;Exaltis Systems LLC (
+              <a
+                href="https://exaltissystems.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--navy-bright)] hover:underline"
+              >
+                exaltissystems.com
+              </a>
+              )
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
