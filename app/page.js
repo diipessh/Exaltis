@@ -338,7 +338,6 @@ function ExaltisLogo({ theme = "dark", size = "nav" }) {
   const isLight = theme === "light";
   const titleColor = isLight ? "#002150" : "#ffffff";
   const subtitleColor = isLight ? "#003380" : "#cbd5e1";
-  // Three-tone ascending triangle mark: darkest/base at bottom, brightest tip on top
   const tipLower = isLight ? "#002150" : "#265894";
   const tipMid = isLight ? "#265894" : "#4C8FD9";
   const tipTop = isLight ? "#4C8FD9" : "#ffffff";
@@ -358,7 +357,6 @@ function ExaltisLogo({ theme = "dark", size = "nav" }) {
         aria-label={`Exaltis Systems ${isLight ? "Light" : "Dark"} Theme Logo`}
         style={{ flexShrink: 0, transition: "all 0.25s ease" }}
       >
-        {/* Ascending triangle mark — each tip stays visible over the one below it */}
         <polygon points="84,79.0 116,79.0 100,51.3" fill={tipTop} />
         <polygon points="76,106.6 124,106.6 100,65.0" fill={tipMid} />
         <polygon points="68,148 132,148 100,92.6" fill={tipLower} />
@@ -430,7 +428,7 @@ export default function App() {
   // Table Top Exercise (TTX) Simulator State
   const [ttxScore, setTtxScore] = useState(100);
   const [ttxTitle, setTtxTitle] = useState("INCIDENT WAR-GAME // SIMULATOR READY");
-  const [ttxPhase, setTtxPhase] = useState("idle"); // 'idle' | 'injecting' | 'active' | 'evaluating' | 'completed'
+  const [ttxPhase, setTtxPhase] = useState("idle");
   const [ttxCommandExecuted, setTtxCommandExecuted] = useState("");
   const [ttxOutcomeHtml, setTtxOutcomeHtml] = useState("");
 
@@ -479,7 +477,7 @@ export default function App() {
     pMat: null,
   });
 
-  // Form Field Refs for focus on error
+  // Form Field Refs
   const intakeNameRef = useRef(null);
   const intakeEmailRef = useRef(null);
   const intakeSizeRef = useRef(null);
@@ -512,15 +510,29 @@ export default function App() {
   };
 
   /* ==========================================================================
-     THEME INITIALIZATION, EXTERNAL FONTS/ICONS & API KEY LOAD
+     HEAD ASSETS INJECTION (FONTS + PHOSPHOR ICONS) & THEME INIT
      ========================================================================== */
   useEffect(() => {
-    // Load Phosphor Icons script if not already loaded
-    if (!document.querySelector('script[src*="@phosphor-icons/web"]')) {
-      const script = document.createElement("script");
-      script.src = "https://unpkg.com/@phosphor-icons/web@2.1.1";
-      script.async = true;
-      document.head.appendChild(script);
+    // Inject Ubuntu Google Font cleanly into <head>
+    if (!document.querySelector('link[href*="family=Ubuntu"]')) {
+      const fontLink = document.createElement("link");
+      fontLink.rel = "stylesheet";
+      fontLink.href =
+        "https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap";
+      document.head.appendChild(fontLink);
+    }
+
+    // Inject Phosphor Icons Fill & Bold CSS cleanly into <head>
+    if (!document.querySelector('link[href*="@phosphor-icons/web@2.1.1/src/fill"]')) {
+      const phFill = document.createElement("link");
+      phFill.rel = "stylesheet";
+      phFill.href = "https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css";
+      document.head.appendChild(phFill);
+
+      const phBold = document.createElement("link");
+      phBold.rel = "stylesheet";
+      phBold.href = "https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css";
+      document.head.appendChild(phBold);
     }
 
     // Theme initialization
@@ -548,7 +560,6 @@ export default function App() {
       // ignore storage errors
     }
 
-    // Set page title
     document.title =
       "Exaltis Systems | Engineered for Deeper Digital Defense | exaltissystems.com";
   }, []);
@@ -637,7 +648,6 @@ export default function App() {
     const currentTheme =
       document.documentElement.getAttribute("data-theme") || "dark";
 
-    // Inner wireframe sphere
     const shieldGeo = new THREE.IcosahedronGeometry(1.6, 1);
     const shieldMat = new THREE.MeshBasicMaterial({
       color: currentTheme === "dark" ? 0x2563eb : 0x1d4ed8,
@@ -648,7 +658,6 @@ export default function App() {
     const shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
     shieldGroup.add(shieldMesh);
 
-    // Outer wireframe sphere
     const outerGeo = new THREE.IcosahedronGeometry(2.1, 2);
     const outerMat = new THREE.MeshBasicMaterial({
       color: currentTheme === "dark" ? 0x1d4ed8 : 0x2563eb,
@@ -659,7 +668,6 @@ export default function App() {
     const outerWireMesh = new THREE.Mesh(outerGeo, outerMat);
     shieldGroup.add(outerWireMesh);
 
-    // Core orbital points
     const pCount = 220;
     const pGeo = new THREE.BufferGeometry();
     const pPos = new Float32Array(pCount * 3);
@@ -1322,45 +1330,40 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
       data-theme={theme}
       className="min-h-screen bg-[var(--bg-base)] text-[var(--text-main)] overflow-x-hidden antialiased"
     >
-      {/* Google Fonts & Exact Original CSS Tokens */}
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossOrigin="anonymous"
-      />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
-        rel="stylesheet"
-      />
-      <link
-        rel="stylesheet"
-        href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css"
-      />
-      <link
-        rel="stylesheet"
-        href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css"
-      />
-
       <style>{`
         /* ==========================================================================
-           1. GLOBAL STRICT UBUNTU TYPOGRAPHY & DESIGN TOKENS
+           1. GLOBAL STRICT UBUNTU TYPOGRAPHY & DESIGN TOKENS (CASCADE-SAFE)
            ========================================================================== */
-        * {
-          margin: 0;
-          padding: 0;
+        
+          * {
           box-sizing: border-box;
-          font-family: 'Ubuntu', sans-serif !important;
           transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
         }
+
+        body, button, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, a, li, div, label {
+          font-family: 'Ubuntu', sans-serif;
+        }
+
+        i[class^="ph-"], i[class*=" ph-"] {
+          font-family: "Phosphor-Fill", "Phosphor-Bold", "Phosphor" !important;
+        }
+
+          html {
+            scroll-behavior: smooth;
+          }
+
+          body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+          }
+        
 
         .font-mono-cyber {
           font-family: 'Ubuntu', sans-serif !important;
           letter-spacing: 0.04em;
-        }
-
-        html {
-          scroll-behavior: smooth;
         }
 
         :root, html[data-theme="dark"], [data-theme="dark"] {
@@ -1421,15 +1424,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
           --input-error-border: #dc2626;
         }
 
-        body {
-          background-color: var(--bg-base);
-          color: var(--text-main);
-          line-height: 1.6;
-          overflow-x: hidden;
-          -webkit-font-smoothing: antialiased;
-        }
-
-        /* Radar Icon Vector Mask (For any .ph-radar instances) */
         .ph-radar::before {
           content: '' !important;
           display: inline-block;
@@ -1727,15 +1721,13 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
       {/* Navigation Bar */}
       <nav className="fixed top-0 left-0 right-0 h-20 bg-[var(--bg-surface)] backdrop-blur-xl border-b border-[var(--border-subtle)] z-50">
         <div className="custom-container h-full flex items-center justify-between">
-          {/* Dynamic Light/Dark Theme Brand Mark + Wordmark: EXALTIS */}
           <a
             href="https://exaltissystems.com"
-            className="flex items-center text-decoration-none group"
+            className="flex items-center no-underline group"
           >
             <ExaltisLogo theme={theme} size="nav" />
           </a>
 
-          {/* Navigation Links */}
           <ul className="hidden lg:flex items-center gap-7 text-[0.875rem] font-medium text-[var(--text-muted)]">
             <li>
               <a
@@ -1788,9 +1780,9 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </li>
           </ul>
 
-          {/* Header Action Items: Phosphor Fill Theme Toggle + Briefing CTA */}
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={toggleTheme}
               id="theme-toggle-btn"
               className="w-9 h-9 rounded-full border border-[var(--border-navy)] bg-[var(--bg-card)] text-[var(--text-main)] hover:shadow-[0_0_14px_var(--navy-glow)] flex items-center justify-center cursor-pointer transition-all"
@@ -1806,6 +1798,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </button>
 
             <button
+              type="button"
               onClick={() => openModal("General Architecture Briefing")}
               className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] shadow-[0_4px_16px_var(--navy-glow)] hover:-translate-y-0.5 transition-all cursor-pointer"
             >
@@ -1819,7 +1812,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
       <section className="min-h-screen pt-36 pb-20 flex items-center relative">
         <div className="custom-container w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Hero Narrative */}
             <div className="lg:col-span-7">
               <div className="tagline-pill tag-pill mb-6">
                 <i className="ph-fill ph-shield-checkered text-xs text-[var(--cyan-accent)]"></i>
@@ -1844,7 +1836,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
               <div className="flex flex-wrap gap-4 mb-12">
                 <a
                   href="#ai-intel-engine"
-                  className="px-7 py-3.5 rounded-lg text-sm font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] shadow-[0_6px_24px_var(--navy-glow)] hover:-translate-y-0.5 transition-all text-decoration-none inline-flex items-center gap-2"
+                  className="px-7 py-3.5 rounded-lg text-sm font-bold text-white bg-[var(--navy-primary)] hover:bg-[var(--navy-deep)] shadow-[0_6px_24px_var(--navy-glow)] hover:-translate-y-0.5 transition-all no-underline inline-flex items-center gap-2"
                 >
                   <i className="ph-fill ph-radar text-base"></i>
                   <span>Launch AI Threat Radar</span>
@@ -1852,14 +1844,13 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
                 </a>
                 <a
                   href="#vciso-advisor"
-                  className="px-7 py-3.5 rounded-lg text-sm font-bold text-[var(--text-main)] bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--border-navy)] hover:bg-[var(--bg-card-hover)] transition-all text-decoration-none inline-flex items-center gap-2"
+                  className="px-7 py-3.5 rounded-lg text-sm font-bold text-[var(--text-main)] bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--border-navy)] hover:bg-[var(--bg-card-hover)] transition-all no-underline inline-flex items-center gap-2"
                 >
                   <i className="ph-fill ph-file-text text-base text-[var(--cyan-accent)]"></i>
                   <span>Generate AI vCISO Audit</span>
                 </a>
               </div>
 
-              {/* Live Metrics Strip */}
               <div className="grid grid-cols-3 gap-6 pt-6 border-t border-[var(--border-subtle)]">
                 <div>
                   <div className="text-2xl lg:text-3xl font-bold text-[var(--cyan-accent)] font-mono-cyber">
@@ -1891,7 +1882,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
               </div>
             </div>
 
-            {/* Right 3D Defense Gyroscope Core Visualizer */}
             <div className="lg:col-span-5 h-[480px] relative flex items-center justify-center">
               <canvas
                 ref={canvasRef}
@@ -1899,7 +1889,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
                 className="w-full h-full rounded-2xl"
               ></canvas>
 
-              {/* Floating Glass HUD Badges */}
               <div className="absolute top-6 -left-4 bg-[var(--bg-surface)] border border-[var(--border-navy)] backdrop-blur-xl rounded-xl p-4 shadow-2xl z-10 w-56">
                 <div className="text-[0.65rem] uppercase font-bold tracking-wider text-[var(--text-muted)]">
                   Autonomous Triage
@@ -1957,6 +1946,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </div>
             <div className="mt-4 md:mt-0 flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => {
                   setApiKeyInput(apiKey);
                   setApiKeyModalOpen(true);
@@ -1975,7 +1965,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </div>
           </div>
 
-          {/* Threat Search Console */}
           <div className="cyber-card p-6 lg:p-8 mb-8">
             <form
               onSubmit={handleThreatSubmit}
@@ -2032,7 +2021,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
               </button>
             </form>
 
-            {/* Quick Query Preset Chips */}
             <div className="flex flex-wrap items-center gap-2 mt-4 text-xs">
               <span className="text-[var(--text-muted)] font-bold">
                 Preset Vectors:
@@ -2082,7 +2070,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </div>
           </div>
 
-          {/* Triage Output Display Panel */}
           <div className="cyber-card p-6 lg:p-8" id="intel-output-card">
             <div className="flex flex-wrap items-center justify-between pb-4 mb-6 border-b border-[var(--border-subtle)] gap-4">
               <div className="flex items-center gap-3">
@@ -2215,7 +2202,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left: Intake Parameters */}
             <div className="lg:col-span-5">
               <div className="cyber-card p-6 lg:p-8 space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
@@ -2367,7 +2353,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
               </div>
             </div>
 
-            {/* Right: Generated Matrix */}
             <div className="lg:col-span-7">
               <div className="cyber-card p-6 lg:p-8 h-full flex flex-col justify-between">
                 <div>
@@ -2727,7 +2712,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </div>
           </div>
 
-          {/* Mission Statement Banner */}
           <div className="cyber-card p-8 lg:p-12 mb-16 bg-gradient-to-r from-[var(--bg-card)] via-[var(--bg-card-hover)] to-[var(--bg-card)] border-[var(--border-navy)]">
             <div className="max-w-4xl mx-auto text-center">
               <span className="tag-pill mb-4">OUR SOVEREIGN MISSION</span>
@@ -2745,7 +2729,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </div>
           </div>
 
-          {/* Foundational Values (5 Pillars) */}
           <div className="mb-20">
             <div className="text-center mb-10">
               <h3 className="text-2xl font-bold">Our 5 Foundational Values</h3>
@@ -2815,7 +2798,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </div>
           </div>
 
-          {/* Bento Grid of Directorates */}
           <div id="cadre-section">
             <div className="text-center mb-12">
               <div className="section-eyebrow flex items-center justify-center gap-2">
@@ -2834,7 +2816,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {/* Directorate 1 */}
               <div
                 className="cyber-card p-7 flex flex-col justify-between group cursor-pointer"
                 onClick={() => inspectCadre("arch")}
@@ -2894,7 +2875,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
                 </div>
               </div>
 
-              {/* Directorate 2 */}
               <div
                 className="cyber-card p-7 flex flex-col justify-between group cursor-pointer"
                 onClick={() => inspectCadre("gov")}
@@ -2955,7 +2935,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
                 </div>
               </div>
 
-              {/* Directorate 3 */}
               <div
                 className="cyber-card p-7 flex flex-col justify-between group cursor-pointer"
                 onClick={() => inspectCadre("soc")}
@@ -3026,7 +3005,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
                 </div>
               </div>
 
-              {/* Directorate 4 */}
               <div
                 className="cyber-card p-7 flex flex-col justify-between group cursor-pointer border-red-500/20"
                 onClick={() => inspectCadre("red")}
@@ -3087,7 +3065,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
                 </div>
               </div>
 
-              {/* Directorate 5 */}
               <div
                 className="cyber-card p-7 flex flex-col justify-between group cursor-pointer"
                 onClick={() => inspectCadre("inf")}
@@ -3151,7 +3128,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
                 </div>
               </div>
 
-              {/* Directorate 6 */}
               <div
                 className="cyber-card p-7 flex flex-col justify-between border-[var(--border-navy)] bg-gradient-to-br from-[var(--bg-card)] to-[var(--navy-deep)]/15 group cursor-pointer"
                 onClick={() => inspectCadre("opsec")}
@@ -3216,7 +3192,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
               </div>
             </div>
 
-            {/* Metric Strip */}
             <div className="cyber-card p-6 border-[var(--border-navy)] bg-[var(--bg-surface)]">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
                 <div>
@@ -3304,7 +3279,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </div>
           </div>
 
-          {/* Tier 1: Security */}
           {activeServiceTab === "sec" && (
             <div
               id="service-group-sec"
@@ -3492,7 +3466,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </div>
           )}
 
-          {/* Tier 2: Managed IT */}
           {activeServiceTab === "it" && (
             <div
               id="service-group-it"
@@ -3591,7 +3564,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </div>
           )}
 
-          {/* Tier 3: Compliance */}
           {activeServiceTab === "comp" && (
             <div
               id="service-group-comp"
@@ -3694,7 +3666,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
         </div>
       </section>
 
-      {/* Partners & Technologies (Typographic) */}
+      {/* Partners & Technologies */}
       <section
         id="partners"
         className="py-24 bg-[var(--bg-surface)] border-y border-[var(--border-subtle)] overflow-hidden"
@@ -3716,7 +3688,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
           </div>
         </div>
 
-        {/* Dual Marquee Bands */}
         <div className="space-y-4">
           <div className="marquee-container">
             <div className="marquee-track marquee-forward">
@@ -3736,7 +3707,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
               <div className="partner-logo-tile">CyberArk</div>
               <div className="partner-logo-tile">Datadog</div>
 
-              {/* Loop Clones */}
               <div className="partner-logo-tile">CrowdStrike</div>
               <div className="partner-logo-tile">
                 Microsoft Sentinel &amp; E5
@@ -3773,7 +3743,6 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
               <div className="partner-logo-tile">Lenovo ThinkShield</div>
               <div className="partner-logo-tile">PagerDuty</div>
 
-              {/* Loop Clones */}
               <div className="partner-logo-tile">Splunk Enterprise</div>
               <div className="partner-logo-tile">Red Hat Enterprise</div>
               <div className="partner-logo-tile">SonicWall</div>
@@ -4072,11 +4041,10 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
               </h2>
               <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8">
                 Speak directly with a Principal Security Architect at Exaltis
-                Systems LLC. We deliver customized attack surface scopes,
+                Systems. We deliver customized attack surface scopes,
                 compliance gap roadmaps, and pricing proposals within 24 hours.
               </p>
 
-              {/* Contact Details (Uniform Phosphor Fill Icons) */}
               <div className="space-y-4 text-xs text-[var(--text-muted)] mb-8">
                 <div className="flex items-center gap-3">
                   <span className="w-9 h-9 rounded-lg bg-[var(--badge-bg)] border border-[var(--badge-border)] flex items-center justify-center text-[var(--cyan-accent)] flex-shrink-0">
@@ -4824,7 +4792,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
           <div className="grid grid-cols-1 md:grid-cols-3 items-center justify-between gap-6">
             <a
               href="https://exaltissystems.com"
-              className="flex items-center text-decoration-none group justify-self-center md:justify-self-start"
+              className="flex items-center no-underline group justify-self-center md:justify-self-start"
             >
               <ExaltisLogo theme={theme} size="footer" />
             </a>
@@ -4854,7 +4822,7 @@ Generate a comprehensive, structured gap assessment and compliance readiness roa
             </div>
 
             <div className="text-xs text-[var(--text-muted)] font-medium text-center md:text-right justify-self-center md:justify-self-end">
-              All rights reserved for &copy;Exaltis Systems LLC (
+              All rights reserved for &copy;Exaltis Systems (
               <a
                 href="https://exaltissystems.com"
                 target="_blank"
